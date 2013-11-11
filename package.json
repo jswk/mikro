@@ -1,0 +1,16 @@
+{
+  "name": "mikro",
+  "version": "0.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jswk/mikro.git"
+  },
+  "author": "Jakub Sawicki, Mateusz Zieliński",
+  "bugs": {
+    "url": "https://github.com/jswk/mikro/issues"
+  },
+  "devDependencies": {
+    "markdown-pdf": "~1.1.1"
+  }
+}

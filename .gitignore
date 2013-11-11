@@ -16,3 +16,11 @@
 *.exe
 *.out
 *.app
+
+# Project files
+
+# Vendor files
+node_modules
+
+# Documentation artifacts
+README.pdf

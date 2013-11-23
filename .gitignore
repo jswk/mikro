@@ -18,6 +18,11 @@
 *.app
 
 # Project files
+Debug
+Release
+.settings
+.cproject
+.project
 
 # Vendor files
 node_modules

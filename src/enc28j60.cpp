@@ -359,6 +359,8 @@ static void writePhy (byte address, word data) {
         ;
 }
 
+uint8_t ENC28J60::MAC[6];
+
 byte ENC28J60::initialize (const uint16_t size, const uint8_t* macaddr, uint8_t csPin) {
     bufferSize = size;
     if (bitRead(SPCR, SPE) == 0)
@@ -398,6 +400,13 @@ byte ENC28J60::initialize (const uint16_t size, const uint8_t* macaddr, uint8_t 
     SetBank(ECON1);
     writeOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE|EIE_PKTIE);
     writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
+
+    MAC[0] = macaddr[0];
+    MAC[1] = macaddr[1];
+    MAC[2] = macaddr[2];
+    MAC[3] = macaddr[3];
+    MAC[4] = macaddr[4];
+    MAC[5] = macaddr[5];
 
     byte rev = readRegByte(EREVID);
     // microchip forgot to step the number on the silcon when they

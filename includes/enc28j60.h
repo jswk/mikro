@@ -25,6 +25,7 @@ class ENC28J60 {
 public:
   static uint8_t buffer[];
   static uint16_t bufferSize;
+  static uint8_t MAC[];
 
   static uint8_t* tcpOffset () { return buffer + 0x36; }
 
@@ -48,7 +49,5 @@ public:
   static void disableMulticast ();
   static uint8_t doBIST(uint8_t csPin =8);
 };
-
-typedef ENC28J60 Ethernet;
 
 #endif

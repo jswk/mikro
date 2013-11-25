@@ -40,19 +40,47 @@ na metodach GET i POST.
 4. Części systemu
 -----------------
 
-### 1. Implementacja NDP
-### 2. Implementacja IPv6
-### 3. Implementacja TCP
-### 4. Implementacja HTTP
-### 5. Obsługa zapytań POST po stronie serwera
+### 1. PHY
+Warstwa fizyczna łącza zapewniana jest przez układ ENC28J60, do obsługi którego
+wykorzystaliśmy bibliotekę będącą częścią m.in. projektu github.com/jcw/ethercard
+i która stworzona została przez Guido Socher'a i udostępniona na licencji GPLv2.
+
+### 1. Implementacja Ethernet
+Klasa ta zapewnia obsługę warstwy łącza danych. Zapisuje ona również informacje
+o adresie MAC urządzenia, który może być dowolnie ustalany podczas inicjalizacji.
+
+	class Ethernet {
+	public:
+		static uint8_t* buffer;
+		static uint8_t* MAC;
+		static uint16_t packetPrepare(const uint8_t* dest_mac, uint16_t typelen);
+		static void packetSend(uint16_t length);
+		static uint16_t packetReceive();
+	
+		static void getSrcMAC(uint8_t* mac, const uint8_t* buffer);
+	
+		static uint16_t getTypeLen(const uint8_t* buffer);
+	};
+
+
+### 2. Implementacja NDP
+### 3. Implementacja IPv6
+### 4. Implementacja TCP
+### 5. Implementacja HTTP
+### 6. Obsługa zapytań POST po stronie serwera
 
 
 5. Postęp prac
 --------------
 
 ### 12.11.2013
-Zakup Arduino Uno i modułu Ethernet ENC28J60. Wstępne przetestowanie sprzętu i konfiguracja
-środowiska programistycznego do obsługi mikrokontrolera.
+Zakup Arduino Uno i modułu Ethernet ENC28J60. Wstępne przetestowanie
+sprzętu i konfiguracja środowiska programistycznego do obsługi mikrokontrolera.
+
+### 26.11.2013
+Połączenia Arduino z modułem Ethernet. Implementacja warstwy Ethernet wraz
+z walikacją poprawności przesyłanych danych poprzez CRC. Rejestracja komunikacji
+poprzez Wireshark.
 
 6. Przydatne komendy
 --------------------

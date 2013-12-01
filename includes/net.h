@@ -1,6 +1,10 @@
 #ifndef NET_H
 #define NET_H
 
+#define DEBUG_ETH
+#define DEBUG_IPv6
+#define DEBUG_ICMPv6
+
 // ******* ETH *******
 #define ETH_HEADER_LEN 14
 #define ETH_FOOTER_LEN 4
@@ -32,5 +36,7 @@
 #define IPv6_HOP_LIMIT 7
 #define IPv6_SRC_ADDR 8
 #define IPv6_DST_ADDR 24
+
+#define SWAP_16_H_L(val) ((uint16_t) val >> 8 | (uint16_t) val << 8)
 
 #endif

@@ -359,8 +359,6 @@ static void writePhy (byte address, word data) {
         ;
 }
 
-uint8_t ENC28J60::MAC[6];
-
 byte ENC28J60::initialize (const uint16_t size, const uint8_t* macaddr, uint8_t csPin) {
     bufferSize = size;
     if (bitRead(SPCR, SPE) == 0)

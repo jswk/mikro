@@ -1,8 +1,10 @@
+#include "net.h"
+
 #include "ethernet.h"
 #include "Arduino.h"
 
 #include "enc28j60.h"
-#include "net.h"
+#include "IPv6.h"
 
 uint8_t* Ethernet::buffer = ENC28J60::buffer;
 uint8_t* Ethernet::MAC = ENC28J60::MAC;
@@ -78,14 +80,16 @@ void Ethernet::packetSend(uint16_t length) {
 	ENC28J60::packetSend(length+ETH_FOOTER_LEN);
 }
 
-void Ethernet::packetProcess(const uint8_t *buffer, uint16_t length) {
+void Ethernet::packetProcess(uint16_t length) {
+	uint16_t typelen;
+	typelen = Ethernet::getTypeLen();
+
+#ifdef DEBUG_ETH
 	uint8_t mac[6];
 	int i;
 	char sep = ' ';
-	uint16_t typelen;
 
-	Ethernet::getSrcMAC(mac, Ethernet::buffer);
-	typelen = Ethernet::getTypeLen(Ethernet::buffer);
+	Ethernet::getSrcMAC(mac);
 
 	Serial.print(F("Src MAC:"));
 	for (i = 0; i < 6; i++) {
@@ -98,26 +102,27 @@ void Ethernet::packetProcess(const uint8_t *buffer, uint16_t length) {
 	Serial.println(typelen, HEX);
 	Serial.println(length);
 	Serial.println(verifyCRC(length-4) ? F("Verified") : F("Dropped"));
+#endif
 
 	if (!verifyCRC(length-4)) return;
 
 	switch (typelen) {
 	case ETHTYPE_IPv6_V:
-		//IPv6::packetProcess(buffer+ETH_HEADER_LEN, length - (ETH_HEADER_LEN + ETH_FOOTER_LEN));
+		IPv6::packetProcess(ETH_HEADER_LEN, length - (ETH_HEADER_LEN + ETH_FOOTER_LEN));
 		break;
 	}
 }
 
-void Ethernet::getSrcMAC(uint8_t* mac, const uint8_t* buffer) {
+void Ethernet::getSrcMAC(uint8_t* mac) {
 	int i;
 	for (i = 0; i < 6; i++) {
-		mac[i] = buffer[ETH_SRC_MAC+i];
+		mac[i] = Ethernet::buffer[ETH_SRC_MAC+i];
 	}
 }
 
-uint16_t Ethernet::getTypeLen(const uint8_t* buffer) {
+uint16_t Ethernet::getTypeLen() {
 	uint16_t out = 0;
-	out |= ((uint16_t) buffer[ETH_TYPE_H_P]) << 8;
-	out |= ((uint16_t) buffer[ETH_TYPE_L_P]) << 0;
+	out |= ((uint16_t) Ethernet::buffer[ETH_TYPE_H_P]) << 8;
+	out |= ((uint16_t) Ethernet::buffer[ETH_TYPE_L_P]) << 0;
 	return out;
 }

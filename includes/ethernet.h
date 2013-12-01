@@ -11,7 +11,7 @@ public:
 	static uint8_t* MAC;
 	static uint16_t packetPrepare(const uint8_t* dest_mac, uint16_t typelen);
 	static void packetSend(uint16_t length);
-	static uint16_t packetReceive();
+	static void packetProcess(const uint8_t* buffer, uint16_t length);
 
 	static void getSrcMAC(uint8_t* mac, const uint8_t* buffer);
 

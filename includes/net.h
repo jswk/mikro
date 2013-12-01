@@ -2,7 +2,8 @@
 #define NET_H
 
 // ******* ETH *******
-#define ETH_HEADER_LEN        14
+#define ETH_HEADER_LEN 14
+#define ETH_FOOTER_LEN 4
 // values of certain bytes:
 #define ETHTYPE_ARP_H_V 0x08
 #define ETHTYPE_ARP_L_V 0x06
@@ -10,6 +11,7 @@
 #define ETHTYPE_IP_L_V 0x00
 #define ETHTYPE_IPv6_H_V 0x86
 #define ETHTYPE_IPv6_L_V 0xdd
+#define ETHTYPE_IPv6_V 0x86dd
 // byte positions in the ethernet frame:
 //
 // Ethernet type field (2bytes):

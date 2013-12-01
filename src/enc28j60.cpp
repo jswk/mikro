@@ -448,7 +448,8 @@ uint16_t ENC28J60::packetReceive() {
         readBuf(sizeof header, (byte*) &header);
 
         gNextPacketPtr  = header.nextPacket;
-        len = header.byteCount - 4; //remove the CRC count
+        // len = header.byteCount - 4; //remove the CRC count
+        len = header.byteCount; // preserve CRC count
         if (len>bufferSize-1)
             len=bufferSize-1;
         if ((header.status & 0x80)==0)

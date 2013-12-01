@@ -10,12 +10,6 @@
 #include "enc28j60.h"
 #include "ethernet.h"
 
-// Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734
-#ifdef PROGMEM
-#undef PROGMEM
-#define PROGMEM __attribute__((section(".progmem.data")))
-#endif
-
 byte ENC28J60::buffer[700];
 
 uint8_t ENC28J60::MAC[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
@@ -45,13 +39,13 @@ int main(void) {
 
   init();
   setup();
-
+/*
   delay(100);
 
   uint16_t off = Ethernet::packetPrepare(destmac, 100);
   memset(Ethernet::buffer+off, 0x42, 100);
   Ethernet::packetSend(100+off);
-
+*/
   while(true) {
     loop();
   }

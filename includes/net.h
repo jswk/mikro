@@ -1,8 +1,8 @@
 #ifndef NET_H
 #define NET_H
 
-#define DEBUG_ETH
-#define DEBUG_IPv6
+//#define DEBUG_ETH
+//#define DEBUG_IPv6
 #define DEBUG_ICMPv6
 
 // ******* ETH *******
@@ -37,6 +37,12 @@
 #define IPv6_SRC_ADDR 8
 #define IPv6_DST_ADDR 24
 
-#define SWAP_16_H_L(val) ((uint16_t) val >> 8 | (uint16_t) val << 8)
+#define SWAP_16_H_L(val) ((uint16_t) (val) >> 8 | (uint16_t) (val) << 8)
+
+// Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734
+#ifdef PROGMEM
+#undef PROGMEM
+#define PROGMEM __attribute__((section(".progmem.data")))
+#endif
 
 #endif

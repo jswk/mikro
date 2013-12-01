@@ -20,6 +20,7 @@ class IPv6 {
 public:
 	static uint8_t* buffer;
 	static uint16_t* address;
+	static struct IPv6_header* header;
 
 	static void packetProcess(uint16_t offset, uint16_t length);
 

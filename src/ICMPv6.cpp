@@ -39,17 +39,12 @@ uint16_t generateChecksum(struct ICMPv6_header *header) {
 	checksum += 58UL;
 
 	for (tmp = (unsigned int*) header, end = tmp + (length+1)/2; tmp < end; tmp++) {
-		checksum += (*tmp);
-		//Serial.println(checksum, 16);
+		checksum += SWAP_16_H_L(*tmp);
 	}
 
-	//Serial.println(checksum, 16);
-	while (checksum & 0xFFFF0000UL) {
-		//Serial.println(checksum & 0x0000FFFFUL, 16);
-		//Serial.println(checksum >> 16, 16);
-		checksum = (checksum & 0x0000FFFFUL) + (checksum >> 16);
-	}
-	//Serial.println(checksum, 16);
+	checksum -= SWAP_16_H_L(header->checksum);
+
+	checksum += (checksum >> 16);
 
 	return (uint16_t) ~checksum;
 }

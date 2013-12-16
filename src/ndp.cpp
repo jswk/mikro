@@ -1,9 +1,10 @@
 #include "net.h"
 
-#include "ICMPv6.h"
+#include "ndp.h"
 #include "Arduino.h"
 
-#include "IPv6.h"
-#include "ndp.h"
-#include "ethernet.h"
+static uint8_t broadcast[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 
+uint8_t* NDP::getMAC(uint16_t *ip) {
+	return broadcast;
+}

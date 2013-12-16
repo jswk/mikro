@@ -37,6 +37,10 @@
 #define IPv6_SRC_ADDR 8
 #define IPv6_DST_ADDR 24
 
+// ******** NDP **********
+#define NDP_NBR_SOLICIT 135
+#define NDP_NBR_ADVERT 136
+
 #define SWAP_16_H_L(val) ((uint16_t) (val) >> 8 | (uint16_t) (val) << 8)
 
 // Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734

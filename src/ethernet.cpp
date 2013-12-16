@@ -70,13 +70,15 @@ static void setCRC(uint16_t length) {
 
 uint16_t Ethernet::packetPrepare(const uint8_t* dest_mac, uint16_t typelen) {
 	setMACs(dest_mac);
-	setTypeLen(typelen+4);
+	setTypeLen(typelen);
 	return ETH_HEADER_LEN;
 }
 
 void Ethernet::packetSend(uint16_t length) {
 	setCRC(length);
 	// CRC has 4 bytes
+	// also, ETH_HEADER_LEN is returned in packetPrepare, so it should be incorporated
+	// in the length argument
 	ENC28J60::packetSend(length+ETH_FOOTER_LEN);
 }
 

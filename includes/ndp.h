@@ -1,12 +1,12 @@
 #ifndef NDP_H
 #define NDP_H
 
-#define NDP
+#include <Arduino.h>
 
 class NDP {
 public:
-	static uint8_t Solicitation = 135;
-	static uint8_t Advertisement = 136;
+	static uint16_t *IP;
+	static uint8_t* getMAC(uint16_t *ip);
 };
 
 #endif

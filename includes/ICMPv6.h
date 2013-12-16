@@ -1,8 +1,6 @@
 #ifndef ICMPv6_H
 #define ICMPv6_H
 
-#define ICMPv6_H
-
 #include <Arduino.h>
 
 struct ICMPv6_header {

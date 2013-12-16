@@ -1,8 +1,6 @@
 #ifndef IPv6_H
 #define IPv6_H
 
-#define IPv6_H
-
 #include <Arduino.h>
 
 struct IPv6_header {
@@ -10,22 +8,22 @@ struct IPv6_header {
 	uint16_t payload_length;
 	uint8_t next_header;
 	uint8_t hop_limit;
-	uint64_t src_ip_h;
-	uint64_t src_ip_l;
-	uint64_t dst_ip_h;
-	uint64_t dst_ip_l;
+	uint16_t src_ip[8];
+	uint16_t dst_ip[8];
 };
 
 class IPv6 {
 public:
-	static uint64_t this_ip_h = 330;
-	static uint64_t this_ip_l = 221;
+
 	static uint8_t* buffer;
 	static uint16_t* address;
 	static struct IPv6_header* header;
 
 	static void packetProcess(uint16_t offset, uint16_t length);
-	static void prepareAnwser();
+	static uint16_t generateChecksum(uint16_t correction);
+	static uint16_t packetPrepare(uint16_t *dst_ip, uint8_t next_header, uint16_t length);
+	static void packetSend(uint16_t length);
+	static void prepareAnswer();
 };
 
 #endif

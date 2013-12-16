@@ -18,6 +18,8 @@ struct IPv6_header {
 
 class IPv6 {
 public:
+	static uint64_t this_ip_h = 330;
+	static uint64_t this_ip_l = 221;
 	static uint8_t* buffer;
 	static uint16_t* address;
 	static struct IPv6_header* header;

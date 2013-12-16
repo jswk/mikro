@@ -46,10 +46,12 @@ void IPv6::packetProcess(uint16_t offset, uint16_t length) {
 static void IPv6::prepareAnwser(){
 	IPv6::header->dst_ip_h = IPv6::header->src_ip_h;//ustawienie nadawcy solicitation jako odbiorcy tego
 	IPv6::header->dst_ip_l = IPv6::header->src_ip_l;
-	//TODOustawienie ip nadawcy swoje:
+	
+	IPv6::header->src_ip_h = this_ip_h;
+	IPv6::header->src_ip_l = this_ip_l;
 	
 	uint8_t* dest = alloc(sizeof(uint8_t));
 	Ethernet::getSrcMAC(dest);
 	Ethernet::packetPrepare(dest, Ethernet::getTypeLen());
-	
+	Ethernet::packetSend(Ethernet::getTypeLen());
 }

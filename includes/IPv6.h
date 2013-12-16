@@ -23,7 +23,7 @@ public:
 	static struct IPv6_header* header;
 
 	static void packetProcess(uint16_t offset, uint16_t length);
-
+	static void prepareAnwser();
 };
 
 #endif

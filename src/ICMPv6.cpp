@@ -4,8 +4,10 @@
 #include "Arduino.h"
 
 #include "IPv6.h"
+#include "ndp.h"
 
 uint8_t* ICMPv6::buffer = IPv6::buffer;
+uint8_t 
 
 uint16_t generateChecksum(struct ICMPv6_header *header) {
 	unsigned long checksum = 0UL;
@@ -64,4 +66,13 @@ void ICMPv6::packetProcess(uint16_t offset, uint16_t length) {
 	Serial.print("Generated checksum: 0x");
 	Serial.println(generateChecksum(header), 16);
 #endif
+	if (header->type == NDP::Solicitation){
+		//response
+		header->type = NDP::Advertisement;//zmiana typu
+		header->checksum = generateChecksum(header);
+		
+		IPv6::prepareAnwser();
+	}
+
 }
+

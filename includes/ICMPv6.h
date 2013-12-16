@@ -19,7 +19,7 @@ public:
 	static uint16_t* address;
 
 	static void packetProcess(uint16_t offset, uint16_t length);
-
+	
 };
 
 #endif

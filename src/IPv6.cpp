@@ -37,7 +37,19 @@ void IPv6::packetProcess(uint16_t offset, uint16_t length) {
 
 	switch (header->next_header) {
 	case 0x3a: // ICMPv6
+		
 		ICMPv6::packetProcess(offset + IPv6_HEADER_LEN, SWAP_16_H_L(IPv6::header->payload_length));
 		break;
 	}
+}
+
+static void IPv6::prepareAnwser(){
+	IPv6::header->dst_ip_h = IPv6::header->src_ip_h;//ustawienie nadawcy solicitation jako odbiorcy tego
+	IPv6::header->dst_ip_l = IPv6::header->src_ip_l;
+	//TODOustawienie ip nadawcy swoje:
+	
+	uint8_t* dest = alloc(sizeof(uint8_t));
+	Ethernet::getSrcMAC(dest);
+	Ethernet::packetPrepare(dest, Ethernet::getTypeLen());
+	
 }

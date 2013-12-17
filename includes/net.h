@@ -4,6 +4,7 @@
 //#define DEBUG_ETH
 //#define DEBUG_IPv6
 #define DEBUG_ICMPv6
+#define DEBUG_NDP
 
 // ******* ETH *******
 #define ETH_HEADER_LEN 14
@@ -42,6 +43,7 @@
 #define NDP_NBR_ADVERT 136
 
 #define SWAP_16_H_L(val) ((uint16_t) (val) >> 8 | (uint16_t) (val) << 8)
+#define BIG_ENDIAN_JOIN(val1, val2) ((uint16_t) (val1) << 8 | (uint16_t) (val2))
 
 // Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734
 #ifdef PROGMEM

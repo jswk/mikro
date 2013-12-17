@@ -3,10 +3,24 @@
 
 #include <Arduino.h>
 
+#define NDP_CACHE_LEN 3
+
+struct ndp_pair {
+	uint8_t ip[16];
+	uint8_t mac[6];
+	uint32_t created;
+};
+
 class NDP {
 public:
-	static uint16_t *IP;
-	static uint8_t* getMAC(uint16_t *ip);
+	static uint8_t IP[];
+	static struct ndp_pair pairs[];
+	static uint8_t* getMAC(uint8_t *ip);
+	static void savePairing(uint8_t *ip, uint8_t *mac);
+
+	static void handleAdvertisment(struct ICMPv6_header *header);
+
+
 };
 
 #endif

@@ -88,17 +88,11 @@ void Ethernet::packetProcess(uint16_t length) {
 
 #ifdef DEBUG_ETH
 	uint8_t mac[6];
-	int i;
-	char sep = ' ';
 
 	Ethernet::getSrcMAC(mac);
 
-	Serial.print(F("Src MAC:"));
-	for (i = 0; i < 6; i++) {
-		Serial.print(sep);
-		Serial.print(mac[i], HEX);
-		sep = ':';
-	}
+	Serial.print(F("Src MAC: "));
+	print_mac_to_serial(mac);
 	Serial.println();
 	Serial.print(F("Type/length: "));
 	Serial.println(typelen, HEX);

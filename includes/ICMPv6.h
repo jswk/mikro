@@ -14,7 +14,7 @@ struct ICMPv6_header {
 class ICMPv6 {
 public:
 	static uint8_t* buffer;
-	static uint16_t* address;
+	static uint8_t* address;
 
 	static void packetProcess(uint16_t offset, uint16_t length);
 	

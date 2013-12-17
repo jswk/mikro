@@ -4,6 +4,7 @@
 #include "Arduino.h"
 
 #include "IPv6.h"
+#include "ndp.h"
 
 uint8_t* ICMPv6::buffer = IPv6::buffer;
 
@@ -22,13 +23,12 @@ void ICMPv6::packetProcess(uint16_t offset, uint16_t length) {
 	Serial.print("Generated checksum: 0x");
 	Serial.println(IPv6::generateChecksum(header->checksum), 16);
 #endif
-	/*if (header->type == NDP::Solicitation){
-		//response
-		header->type = NDP::Advertisement;//zmiana typu
-		header->checksum = generateChecksum(header);
-
-		IPv6::prepareAnswer();
-	}*/
+	switch (header->type) {
+	// Neighbour Advertisment
+	case 136:
+		NDP::handleAdvertisment(header);
+		break;
+	}
 
 }
 

@@ -23,7 +23,6 @@ public:
 	static uint16_t generateChecksum(uint16_t correction);
 	static uint16_t packetPrepare(uint8_t *dst_ip, uint8_t next_header, uint16_t length);
 	static void packetSend(uint16_t length);
-	static void prepareAnswer();
 
 	static bool filter(uint8_t *ip);
 	static void cp_ip(uint8_t *to, const uint8_t *from);

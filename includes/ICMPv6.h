@@ -18,6 +18,8 @@ public:
 
 	static void packetProcess(uint16_t offset, uint16_t length);
 	
+	static void handlePingRequest(struct ICMPv6_header *header);
+
 };
 
 #endif

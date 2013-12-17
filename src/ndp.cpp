@@ -40,19 +40,6 @@ void NDP::handleAdvertisment(struct ICMPv6_header *header) {
 	uint8_t *src_mac = header->body + 16 + 2;
 
 	NDP::savePairing(src_ip, src_mac);
-
-#ifdef DEBUG_NDP
-	int i;
-	for (i = 0; i < NDP_CACHE_LEN; i++) {
-		if (NDP::pairs[i].created == 0) continue;
-		Serial.print(NDP::pairs[i].created);
-		Serial.print(F(": "));
-		print_ip_to_serial(NDP::pairs[i].ip);
-		Serial.print(F(" -> "));
-		print_mac_to_serial(NDP::pairs[i].mac);
-		Serial.println();
-	}
-#endif
 }
 
 void NDP::handleSolicitation(struct ICMPv6_header *header) {
@@ -107,13 +94,13 @@ void NDP::savePairing(uint8_t *ip, uint8_t *mac) {
 		if (cmp_ip(ip, NDP::pairs[i].ip) == 0) {
 			memcpy(NDP::pairs[i].mac, mac, 6);
 			NDP::pairs[i].created = millis();
-			return;
+			break;
 		}
 		if (NDP::pairs[i].created == 0) {
 			memcpy(NDP::pairs[i].ip, ip, 16);
 			memcpy(NDP::pairs[i].mac, mac, 6);
 			NDP::pairs[i].created = millis();
-			return;
+			break;
 		}
 		if (best == 0 || NDP::pairs[i].created < best) {
 			best = NDP::pairs[i].created;
@@ -122,7 +109,21 @@ void NDP::savePairing(uint8_t *ip, uint8_t *mac) {
 		i++;
 	}
 
-	memcpy(NDP::pairs[best_i].ip, ip, 16);
-	memcpy(NDP::pairs[best_i].mac, mac, 6);
-	NDP::pairs[best_i].created = millis();
+	if (i == NDP_CACHE_LEN) {
+		memcpy(NDP::pairs[best_i].ip, ip, 16);
+		memcpy(NDP::pairs[best_i].mac, mac, 6);
+		NDP::pairs[best_i].created = millis();
+	}
+
+#ifdef DEBUG_NDP
+	for (i = 0; i < NDP_CACHE_LEN; i++) {
+		if (NDP::pairs[i].created == 0) continue;
+		Serial.print(NDP::pairs[i].created);
+		Serial.print(F(": "));
+		print_ip_to_serial(NDP::pairs[i].ip);
+		Serial.print(F(" -> "));
+		print_mac_to_serial(NDP::pairs[i].mac);
+		Serial.println();
+	}
+#endif
 }

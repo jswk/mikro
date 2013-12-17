@@ -12,6 +12,16 @@
 uint8_t* IPv6::buffer = Ethernet::buffer;
 struct IPv6_header* IPv6::header;
 
+bool isZeroes(const uint8_t *ip) {
+	uint8_t i;
+	for (i = 0; i < 16; i++) {
+		if (ip[i] != 0) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void IPv6::cp_ip(uint8_t *to, const uint8_t *from) {
 	memcpy(to, from, 16);
 }
@@ -36,6 +46,10 @@ void IPv6::packetProcess(uint16_t offset, uint16_t length) {
 		return;
 	}
 
+	if (!isZeroes(IPv6::header->src_ip)) {
+		NDP::savePairing(IPv6::header->src_ip, Ethernet::getSrcMAC());
+	}
+
 	switch (header->next_header) {
 	case ICMPv6_NEXT_HEADER: // ICMPv6
 		ICMPv6::packetProcess(offset + IPv6_HEADER_LEN, SWAP_16_H_L(IPv6::header->payload_length));
@@ -56,19 +70,6 @@ bool IPv6::filter(uint8_t *ip) {
 	}
 
 	return false;
-}
-
-void IPv6::prepareAnswer() {
-	//IPv6::header->dst_ip_h = IPv6::header->src_ip_h;//ustawienie nadawcy solicitation jako odbiorcy tego
-	//IPv6::header->dst_ip_l = IPv6::header->src_ip_l;
-	
-	//IPv6::header->src_ip_h = this_ip_h;
-	//IPv6::header->src_ip_l = this_ip_l;
-	
-	uint8_t* dest = (uint8_t*)malloc(sizeof(uint8_t));
-	Ethernet::getSrcMAC(dest);
-	Ethernet::packetPrepare(dest, Ethernet::getTypeLen());
-	Ethernet::packetSend(Ethernet::getTypeLen());
 }
 
 uint16_t IPv6::packetPrepare(uint8_t *dst_ip, uint8_t next_header, uint16_t length) {

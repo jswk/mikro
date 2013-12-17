@@ -31,11 +31,31 @@ void ICMPv6::packetProcess(uint16_t offset, uint16_t length) {
 	case ICMPv6_NBR_ADVERT:
 		NDP::handleAdvertisment(header);
 		break;
+
 	// Neighbour Solicitation
 	case ICMPv6_NBR_SOLICIT:
 		NDP::handleSolicitation(header);
 		break;
+
+	// Ping Request
+	case ICMPv6_PING_REQUEST:
+		ICMPv6::handlePingRequest(header);
+		break;
 	}
 
+}
+
+void ICMPv6::handlePingRequest(struct ICMPv6_header *header) {
+	header->checksum = 0;
+	header->type = ICMPv6_PING_REPLY;
+
+	uint16_t tmp = IPv6::header->payload_length;
+	uint16_t offset = IPv6::packetPrepare(IPv6::header->src_ip, ICMPv6_NEXT_HEADER, SWAP_16_H_L(tmp));
+	offset += SWAP_16_H_L(tmp);
+
+	tmp = IPv6::generateChecksum(0);
+	header->checksum = SWAP_16_H_L(tmp);
+
+	IPv6::packetSend(offset);
 }
 

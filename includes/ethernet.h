@@ -13,9 +13,11 @@ public:
 	static void packetSend(uint16_t length);
 	static void packetProcess(uint16_t length);
 
-	static void getSrcMAC(uint8_t* mac);
+	static uint8_t* getSrcMAC();
 
 	static uint16_t getTypeLen();
+
+	static void cp_mac(uint8_t *to, const uint8_t *from);
 };
 
 #endif

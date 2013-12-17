@@ -4,50 +4,9 @@
 #include "Arduino.h"
 
 #include "IPv6.h"
+#include "ndp.h"
 
 uint8_t* ICMPv6::buffer = IPv6::buffer;
-
-uint16_t generateChecksum(struct ICMPv6_header *header) {
-	unsigned long checksum = 0UL;
-
-	unsigned int length = SWAP_16_H_L(IPv6::header->payload_length);
-	unsigned int* tmp = (uint16_t*) &IPv6::header->src_ip_h;
-	unsigned int* end;
-
-	checksum += SWAP_16_H_L(tmp[0]);
-	checksum += SWAP_16_H_L(tmp[1]);
-	checksum += SWAP_16_H_L(tmp[2]);
-	checksum += SWAP_16_H_L(tmp[3]);
-	checksum += SWAP_16_H_L(tmp[4]);
-	checksum += SWAP_16_H_L(tmp[5]);
-	checksum += SWAP_16_H_L(tmp[6]);
-	checksum += SWAP_16_H_L(tmp[7]);
-
-	tmp = (unsigned int*) &IPv6::header->dst_ip_h;
-
-	checksum += SWAP_16_H_L(tmp[0]);
-	checksum += SWAP_16_H_L(tmp[1]);
-	checksum += SWAP_16_H_L(tmp[2]);
-	checksum += SWAP_16_H_L(tmp[3]);
-	checksum += SWAP_16_H_L(tmp[4]);
-	checksum += SWAP_16_H_L(tmp[5]);
-	checksum += SWAP_16_H_L(tmp[6]);
-	checksum += SWAP_16_H_L(tmp[7]);
-
-	checksum += length;
-
-	checksum += 58UL;
-
-	for (tmp = (unsigned int*) header, end = tmp + (length+1)/2; tmp < end; tmp++) {
-		checksum += SWAP_16_H_L(*tmp);
-	}
-
-	checksum -= SWAP_16_H_L(header->checksum);
-
-	checksum += (checksum >> 16);
-
-	return (uint16_t) ~checksum;
-}
 
 void ICMPv6::packetProcess(uint16_t offset, uint16_t length) {
 	struct ICMPv6_header *header = (struct ICMPv6_header*) (ICMPv6::buffer+offset);
@@ -58,10 +17,45 @@ void ICMPv6::packetProcess(uint16_t offset, uint16_t length) {
 	Serial.print("Code: ");
 	Serial.println(header->code);
 
+	Serial.print("Type: ");
+	Serial.println(header->type);
+
 	Serial.print("Checksum:           0x");
 	Serial.println(SWAP_16_H_L(header->checksum), 16);
 
 	Serial.print("Generated checksum: 0x");
-	Serial.println(generateChecksum(header), 16);
+	Serial.println(IPv6::generateChecksum(header->checksum), 16);
 #endif
+	switch (header->type) {
+	// Neighbour Advertisment
+	case ICMPv6_NBR_ADVERT:
+		NDP::handleAdvertisment(header);
+		break;
+
+	// Neighbour Solicitation
+	case ICMPv6_NBR_SOLICIT:
+		NDP::handleSolicitation(header);
+		break;
+
+	// Ping Request
+	case ICMPv6_PING_REQUEST:
+		ICMPv6::handlePingRequest(header);
+		break;
+	}
+
 }
+
+void ICMPv6::handlePingRequest(struct ICMPv6_header *header) {
+	header->checksum = 0;
+	header->type = ICMPv6_PING_REPLY;
+
+	uint16_t tmp = IPv6::header->payload_length;
+	uint16_t offset = IPv6::packetPrepare(IPv6::header->src_ip, ICMPv6_NEXT_HEADER, SWAP_16_H_L(tmp));
+	offset += SWAP_16_H_L(tmp);
+
+	tmp = IPv6::generateChecksum(0);
+	header->checksum = SWAP_16_H_L(tmp);
+
+	IPv6::packetSend(offset);
+}
+

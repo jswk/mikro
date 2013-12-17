@@ -6,18 +6,18 @@
 #include "enc28j60.h"
 #include "IPv6.h"
 
+#include "debug.h"
+
 uint8_t* Ethernet::buffer = ENC28J60::buffer;
 uint8_t* Ethernet::MAC = ENC28J60::MAC;
 
-static void setMACs(const uint8_t* destMAC) {
-	uint8_t i;
-	for (i = 0; i < 6; i++) {
-		Ethernet::buffer[ETH_DST_MAC+i] = destMAC[i];
-	}
+void Ethernet::cp_mac(uint8_t *to, const uint8_t *from) {
+	memcpy(to, from, 6);
+}
 
-	for (i = 0; i < 6; i++) {
-		Ethernet::buffer[ETH_SRC_MAC+i] = Ethernet::MAC[i];
-	}
+static void setMACs(const uint8_t* destMAC) {
+	Ethernet::cp_mac(Ethernet::buffer + ETH_DST_MAC, destMAC);
+	Ethernet::cp_mac(Ethernet::buffer + ETH_SRC_MAC, Ethernet::MAC);
 }
 
 static void setTypeLen(uint16_t typelen) {
@@ -70,13 +70,15 @@ static void setCRC(uint16_t length) {
 
 uint16_t Ethernet::packetPrepare(const uint8_t* dest_mac, uint16_t typelen) {
 	setMACs(dest_mac);
-	setTypeLen(typelen+4);
+	setTypeLen(typelen);
 	return ETH_HEADER_LEN;
 }
 
 void Ethernet::packetSend(uint16_t length) {
 	setCRC(length);
 	// CRC has 4 bytes
+	// also, ETH_HEADER_LEN is returned in packetPrepare, so it should be incorporated
+	// in the length argument
 	ENC28J60::packetSend(length+ETH_FOOTER_LEN);
 }
 
@@ -85,18 +87,10 @@ void Ethernet::packetProcess(uint16_t length) {
 	typelen = Ethernet::getTypeLen();
 
 #ifdef DEBUG_ETH
-	uint8_t mac[6];
-	int i;
-	char sep = ' ';
+	uint8_t* mac = Ethernet::getSrcMAC(mac);
 
-	Ethernet::getSrcMAC(mac);
-
-	Serial.print(F("Src MAC:"));
-	for (i = 0; i < 6; i++) {
-		Serial.print(sep);
-		Serial.print(mac[i], HEX);
-		sep = ':';
-	}
+	Serial.print(F("Src MAC: "));
+	print_mac_to_serial(mac);
 	Serial.println();
 	Serial.print(F("Type/length: "));
 	Serial.println(typelen, HEX);
@@ -113,11 +107,8 @@ void Ethernet::packetProcess(uint16_t length) {
 	}
 }
 
-void Ethernet::getSrcMAC(uint8_t* mac) {
-	int i;
-	for (i = 0; i < 6; i++) {
-		mac[i] = Ethernet::buffer[ETH_SRC_MAC+i];
-	}
+uint8_t* Ethernet::getSrcMAC() {
+	return Ethernet::buffer + ETH_SRC_MAC;
 }
 
 uint16_t Ethernet::getTypeLen() {

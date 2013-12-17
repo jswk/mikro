@@ -1,10 +1,6 @@
 #ifndef NET_H
 #define NET_H
 
-//#define DEBUG_ETH
-//#define DEBUG_IPv6
-#define DEBUG_ICMPv6
-
 // ******* ETH *******
 #define ETH_HEADER_LEN 14
 #define ETH_FOOTER_LEN 4
@@ -37,7 +33,16 @@
 #define IPv6_SRC_ADDR 8
 #define IPv6_DST_ADDR 24
 
+// ******** ICMPv6 **********
+#define ICMPv6_NEXT_HEADER 0x3a
+
+#define ICMPv6_PING_REQUEST 128
+#define ICMPv6_PING_REPLY 129
+#define ICMPv6_NBR_SOLICIT 135
+#define ICMPv6_NBR_ADVERT 136
+
 #define SWAP_16_H_L(val) ((uint16_t) (val) >> 8 | (uint16_t) (val) << 8)
+#define BIG_ENDIAN_JOIN(val1, val2) ((uint16_t) (val1) << 8 | (uint16_t) (val2))
 
 // Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734
 #ifdef PROGMEM

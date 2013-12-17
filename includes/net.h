@@ -38,9 +38,11 @@
 #define IPv6_SRC_ADDR 8
 #define IPv6_DST_ADDR 24
 
-// ******** NDP **********
-#define NDP_NBR_SOLICIT 135
-#define NDP_NBR_ADVERT 136
+// ******** ICMPv6 **********
+#define ICMPv6_NEXT_HEADER 0x3a
+
+#define ICMPv6_NBR_SOLICIT 135
+#define ICMPv6_NBR_ADVERT 136
 
 #define SWAP_16_H_L(val) ((uint16_t) (val) >> 8 | (uint16_t) (val) << 8)
 #define BIG_ENDIAN_JOIN(val1, val2) ((uint16_t) (val1) << 8 | (uint16_t) (val2))

@@ -16,6 +16,8 @@ public:
 	static void getSrcMAC(uint8_t* mac);
 
 	static uint16_t getTypeLen();
+
+	static void cp_mac(uint8_t *to, const uint8_t *from);
 };
 
 #endif

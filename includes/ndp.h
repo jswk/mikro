@@ -19,7 +19,8 @@ public:
 	static void savePairing(uint8_t *ip, uint8_t *mac);
 
 	static void handleAdvertisment(struct ICMPv6_header *header);
-
+	static void handleSolicitation(struct ICMPv6_header *header);
+	static void sendAdvertisment(uint8_t *dst_ip, bool solicited, bool override);
 
 };
 

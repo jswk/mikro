@@ -17,6 +17,9 @@ void ICMPv6::packetProcess(uint16_t offset, uint16_t length) {
 	Serial.print("Code: ");
 	Serial.println(header->code);
 
+	Serial.print("Type: ");
+	Serial.println(header->type);
+
 	Serial.print("Checksum:           0x");
 	Serial.println(SWAP_16_H_L(header->checksum), 16);
 
@@ -25,8 +28,12 @@ void ICMPv6::packetProcess(uint16_t offset, uint16_t length) {
 #endif
 	switch (header->type) {
 	// Neighbour Advertisment
-	case 136:
+	case ICMPv6_NBR_ADVERT:
 		NDP::handleAdvertisment(header);
+		break;
+	// Neighbour Solicitation
+	case ICMPv6_NBR_SOLICIT:
+		NDP::handleSolicitation(header);
 		break;
 	}
 

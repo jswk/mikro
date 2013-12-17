@@ -6,18 +6,18 @@
 #include "enc28j60.h"
 #include "IPv6.h"
 
+#include "debug.h"
+
 uint8_t* Ethernet::buffer = ENC28J60::buffer;
 uint8_t* Ethernet::MAC = ENC28J60::MAC;
 
-static void setMACs(const uint8_t* destMAC) {
-	uint8_t i;
-	for (i = 0; i < 6; i++) {
-		Ethernet::buffer[ETH_DST_MAC+i] = destMAC[i];
-	}
+void Ethernet::cp_mac(uint8_t *to, const uint8_t *from) {
+	memcpy(to, from, 6);
+}
 
-	for (i = 0; i < 6; i++) {
-		Ethernet::buffer[ETH_SRC_MAC+i] = Ethernet::MAC[i];
-	}
+static void setMACs(const uint8_t* destMAC) {
+	Ethernet::cp_mac(Ethernet::buffer + ETH_DST_MAC, destMAC);
+	Ethernet::cp_mac(Ethernet::buffer + ETH_SRC_MAC, Ethernet::MAC);
 }
 
 static void setTypeLen(uint16_t typelen) {

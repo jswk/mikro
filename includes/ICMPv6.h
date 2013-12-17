@@ -8,7 +8,7 @@ struct ICMPv6_header {
 	uint8_t code;
 	uint16_t checksum;
 	uint32_t reserved;
-	uint8_t body;
+	uint8_t body[];
 };
 
 class ICMPv6 {

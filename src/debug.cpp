@@ -2,7 +2,7 @@
 
 #include "debug.h"
 
-void print_ip_to_serial(uint8_t *ip) {
+void print_ip_to_serial(const uint8_t *ip) {
 	char sep = 0;
 	int i;
 	for (i = 0; i < 16; i += 2) {
@@ -13,7 +13,7 @@ void print_ip_to_serial(uint8_t *ip) {
 	}
 }
 
-void print_mac_to_serial(uint8_t *mac) {
+void print_mac_to_serial(const uint8_t *mac) {
 	int i;
 	char sep = 0;
 

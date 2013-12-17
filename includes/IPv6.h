@@ -26,6 +26,7 @@ public:
 	static void prepareAnswer();
 
 	static bool filter(uint8_t *ip);
+	static void cp_ip(uint8_t *to, const uint8_t *from);
 };
 
 #endif

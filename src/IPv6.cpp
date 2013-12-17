@@ -12,7 +12,7 @@
 uint8_t* IPv6::buffer = Ethernet::buffer;
 struct IPv6_header* IPv6::header;
 
-void cp_ip(uint16_t *to, uint16_t *from) {
+void IPv6::cp_ip(uint8_t *to, const uint8_t *from) {
 	memcpy(to, from, 16);
 }
 
@@ -37,8 +37,7 @@ void IPv6::packetProcess(uint16_t offset, uint16_t length) {
 	}
 
 	switch (header->next_header) {
-	case 0x3a: // ICMPv6
-		
+	case ICMPv6_NEXT_HEADER: // ICMPv6
 		ICMPv6::packetProcess(offset + IPv6_HEADER_LEN, SWAP_16_H_L(IPv6::header->payload_length));
 		break;
 	}
@@ -73,11 +72,14 @@ void IPv6::prepareAnswer() {
 }
 
 uint16_t IPv6::packetPrepare(uint8_t *dst_ip, uint8_t next_header, uint16_t length) {
+	uint8_t *dst_mac = NDP::getMAC(dst_ip);
+	if (dst_mac == 0) {
+		return 0;
+	}
 	memcpy(header->dst_ip, dst_ip, 16);
 	memcpy(header->src_ip, NDP::IP, 16);
 	header->payload_length = SWAP_16_H_L(length);
 	header->next_header = next_header;
-	uint8_t *dst_mac = NDP::getMAC(dst_ip);
 	return Ethernet::packetPrepare(dst_mac, 0x86DD) + IPv6_HEADER_LEN;
 }
 

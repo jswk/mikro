@@ -62,7 +62,7 @@ przygotowanie ramki do wysłania) jak i weryfikacja tejże sumy kontrolenj w prz
 odbierania ramki. 
 
 	class Ethernet {
-public:
+	public:
 	static uint8_t* buffer;
 	static uint8_t* MAC;
 	static uint16_t packetPrepare(const uint8_t* dest_mac, uint16_t typelen);
@@ -85,7 +85,8 @@ Operuje na warstwie łącza danych. Jego zdaniem jest między innymi:
 * odkrywanie innych elementów sieci
 * ustalanie adresu warstwy łącza danych 
 * znajdowanie routerów
-* inne
+* inne.
+
 W przypdaku naszej implementacji skupiliśmy się na ustalaniu adresów warstwy łącza danych,
 zarówno na potrzeby wysyłania przez nas ramek jak i w odpowiedzi na zapytania innych
 węzłów sieci. Jest ona zdefiniowana w pliku ndp.h, zaś jej implementacja znajduje się w pliku 
@@ -93,7 +94,7 @@ ndp.cpp. Kluczowa z punktu widzenia implementowanej przez nas funkcjonalności p
 struktura, zawierająca adres mac i odpowiadający mu adres IP w  wersji szóstej, została przez
 nas zdefiniowana w następujący sposób:
 
-struct ndp_pair {
+	struct ndp_pair {
 	uint8_t ip[16];
 	uint8_t mac[6];
 	uint32_t created;
@@ -104,8 +105,8 @@ ustalenia liczby przechowywanych w ten sposób par do 3. Pole created zawiera cz
 wpisu w tejże tablicy i umożliwia ocenę poprawności przechowywanych danych.
 Sama klasa wypełniająca zadania protokołu NDP jest zdefiniowana następująco:
 
-class NDP {
-public:
+	class NDP {
+	public:
 	static uint8_t IP[];
 	static struct ndp_pair pairs[];
 	static uint8_t* getMAC(uint8_t *ip);

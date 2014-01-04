@@ -52,7 +52,7 @@ public:
 
 	static void packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length);
 
-	static void send(TCP_status* status, char* data);
+	static void send(TCP_status* status, uint8_t* data, uint16_t length);
 
 	static void registerHandler(uint16_t port, void (*handler)(struct TCP_handler_args* args));
 };

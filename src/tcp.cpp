@@ -241,12 +241,12 @@ void TCP::packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length) {
 	}
 }
 
-void TCP::send(struct TCP_status* status, char* data) {
+void TCP::send(struct TCP_status* status, uint8_t* data, uint16_t length) {
 	if (status->state != TCP_ESTABLISHED) {
 		return;
 	}
 
-	uint16_t len = sizeof(struct TCP_header) + strlen(data);
+	uint16_t len = sizeof(struct TCP_header) + length;
 	uint16_t offset = IPv6::packetPrepare(status->ip, TCP_NEXT_HEADER, len);
 	TCP::header = (struct TCP_header*) (TCP::buffer + offset);
 	TCP::header->src_port = SWAP_16_H_L(status->local_port);
@@ -258,10 +258,10 @@ void TCP::send(struct TCP_status* status, char* data) {
 	TCP::header->window = SWAP_16_H_L(512); // reduce window size
 	TCP::header->checksum = 0;
 	TCP::header->urgent_pointer = 0;
-	memcpy(TCP::header->options, data, strlen(data));
+	memcpy(TCP::header->options, data, length);
 	TCP::header->checksum = IPv6::generateChecksum(0);
 	TCP::header->checksum = SWAP_16_H_L(TCP::header->checksum);
 	IPv6::packetSend(offset+len);
 
-	status->local_num += strlen(data);
+	status->local_num += length;
 }

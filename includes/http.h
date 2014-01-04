@@ -6,7 +6,7 @@
 
 class HTTP {
 public:
-
+	static char buffer[];
 	static void handler(TCP_handler_args* args);
 };
 

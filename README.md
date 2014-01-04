@@ -74,7 +74,7 @@ odbierania ramki.
 	static uint16_t getTypeLen();
 
 	static void cp_mac(uint8_t *to, const uint8_t *from);
-};
+	};
 
 
 ### 2. Implementacja NDP
@@ -98,7 +98,7 @@ nas zdefiniowana w następujący sposób:
 	uint8_t ip[16];
 	uint8_t mac[6];
 	uint32_t created;
-};
+	};
 
 Z powodu ograniczenia pamięci w wykorzystywanej przez nas platformie, zmuszeni byliśmy do 
 ustalenia liczby przechowywanych w ten sposób par do 3. Pole created zawiera czas odświeżenia
@@ -116,7 +116,7 @@ Sama klasa wypełniająca zadania protokołu NDP jest zdefiniowana następująco
 	static void handleSolicitation(struct ICMPv6_header *header);
 	static void sendAdvertisment(uint8_t *dst_ip, bool solicited, bool override);
 
-};
+	};
 
 Tak jak w wypadku klasy Ethernet, zawiera ona szereg statycznych metod. Dwie z nich służa do 
 bezpośredniego operowania na wspomnianej wcześniej tablicy struktur ndp_pair. Są to getMAC,
@@ -132,6 +132,65 @@ wysyła ramkę typu Neighbor Advertisement.
 
 
 ### 3. Implementacja IPv6
+Klasy: ICMPv6 i IPv6
+IPv6 to protokół komunikacyjny, następca IPv4. Zapewnia on większą przestrzeń adresowania
+w porównaniu do jego poprzednika (z 32 do 128 bitów) oraz szereg innych usprawnień, na 
+przykład większą elastyczność dzięki wprowadzeniu rozszerzeń.
+Klasa IPv6 jest zdefiniowana w pliku IPv6.h i zaimplementowana w pliku IPv6.cpp. 
+Struktura przechowywująca informacje o zawarte w nagłówku IPv6 jest zdefiniowana następująco:
+
+	struct IPv6_header {
+	uint32_t first4octets;
+	uint16_t payload_length;
+	uint8_t next_header;
+	uint8_t hop_limit;
+	uint8_t src_ip[16];
+	uint8_t dst_ip[16];
+	};
+	
+Najbardziej potrzebne nam informacje w niej zawarte to adresy docelowe i źródłowe oraz pole 
+next_header.
+
+Sama klasa wypełniająca zadania protokołu IPv6 jest zdefiniowana następująco:
+
+	class IPv6 {
+	public:
+
+	static uint8_t* buffer;
+	static uint16_t* address;
+	static struct IPv6_header* header;
+
+	static void packetProcess(uint16_t offset, uint16_t length);
+	static uint16_t generateChecksum(uint16_t correction);
+	static uint16_t packetPrepare(uint8_t *dst_ip, uint8_t next_header, uint16_t length);
+	static void packetSend(uint16_t length);
+
+	static bool filter(uint8_t *ip);
+	static void cp_ip(uint8_t *to, const uint8_t *from);
+	};
+	
+Podobnie jak w przypadku klasy Ethernet umożliwia ona przetworzenie pakietu przychodzącego
+oraz przygotowanie i wysłanie pakietu do wybranego adresu docelowego. Udostępniony jest też
+szerego metod pomocniczych umożliwiających:
+* wygenerowanie checksumy dla ramki IPv6
+* sprawdzenie czy należy przetwarzać ramkę (metoda filter)
+* metoda umożliwiająca kopiowanie adresu ip między miejscami w pamięci
+
+W ramach przetwarzania ramki, jeśli pole next_header przyjmie wartość stałej ICMPv6_NEXT_HEADER,
+wykorzystana zostaje klasa ICMPv6 w celu przetworznia takiego nagłówka.
+
+Protokół ICMPv6 (Internet Control Message Protocol) ma szereg zastosowań i rozszerzeń, my skupiliśmy
+się na trzech kluczowych, to jest:
+* obsługę Neighbour Advertisment
+* obsługę Neighbour Solicitation
+* obsługę Ping Request
+
+Pierwsze dwa obsługiwana są przez omówioną wcześniej klasę NDP, przez wykorzystanie metod:
+handleSolicitation i handleAdvertisment. Trzeci obsługiwanay jest z wykorzystaniem metody 
+handlePingRequest samej klasy ICMPv6. Wykorzystuje ona metody klasy IPv6 w celu odesłania 
+odpowiedzi na zapytanie typu ping request (ping reply).
+
+
 ### 4. Implementacja TCP
 ### 5. Implementacja HTTP
 ### 6. Obsługa zapytań POST po stronie serwera

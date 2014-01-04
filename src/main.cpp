@@ -44,13 +44,6 @@ int main(void) {
 
   init();
   setup();
-/*
-  delay(100);
-
-  uint16_t off = Ethernet::packetPrepare(destmac, 100);
-  memset(Ethernet::buffer+off, 0x42, 100);
-  Ethernet::packetSend(100+off);
-*/
   while(true) {
     loop();
   }

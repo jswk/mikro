@@ -25,7 +25,7 @@ W celu realizacji podstawowych funkcjonalności serwera http (to jest metod GET 
 koniecznym jest zapewnienie wsparcia szeregu protokołów. Nie będziemy w stanie
 zaimplementować wszystkich funkcjonalności tychże protokołów, jednak skupimy się
 na tych ich elementach, które umożliwią pracę naszego serwera. Wspomniane protokoły to:
-* ARP
+* NDP
 * IPv6
 * TCP
 * HTTP
@@ -46,24 +46,90 @@ wykorzystaliśmy bibliotekę będącą częścią m.in. projektu github.com/jcw/
 i która stworzona została przez Guido Socher'a i udostępniona na licencji GPLv2.
 
 ### 1. Implementacja Ethernet
+Klasa: Ethernet
 Klasa ta zapewnia obsługę warstwy łącza danych. Zapisuje ona również informacje
 o adresie MAC urządzenia, który może być dowolnie ustalany podczas inicjalizacji.
+Jest ona zdefiniowana w pliku ethernet.h, zaś jej implementacja znajduje się w pliku 
+ethernet.cpp. Za pomocą metod statycznych umożliwia ona obsługę pakietu ethernet
+(obejmuje to zarówno przygotowanie pakietu do wysłania (ustawienie odpowiednich adresów
+MAC, nadawcy jak i odbiorcy), wysłanie przygotowanego wcześniej pakietu jak i 
+przetworzenie odebranego pakietu). Klasa ta udostępnia także szereg metod pomocniczych
+umożliwiających na przykład pobranie adresu MAC nadawcy danej ramki czy skopiowanie
+adresu MAC zlokalizowanego w pamięci za pomocą wskaźnika do innego miejsca w pamięci.
+Co istotne, w ramach wykonania metod tej klasy, związanych z wysyłaniem i odbieraniem
+ramki, obecne już jest generowanie sumy kontrlonej za pomocą algorytmu CRC (w przypadku 
+przygotowanie ramki do wysłania) jak i weryfikacja tejże sumy kontrolenj w przypadku
+odbierania ramki. 
 
 	class Ethernet {
-	public:
-		static uint8_t* buffer;
-		static uint8_t* MAC;
-		static uint16_t packetPrepare(const uint8_t* dest_mac, uint16_t typelen);
-		static void packetSend(uint16_t length);
-		static uint16_t packetReceive();
-	
-		static void getSrcMAC(uint8_t* mac, const uint8_t* buffer);
-	
-		static uint16_t getTypeLen(const uint8_t* buffer);
-	};
+public:
+	static uint8_t* buffer;
+	static uint8_t* MAC;
+	static uint16_t packetPrepare(const uint8_t* dest_mac, uint16_t typelen);
+	static void packetSend(uint16_t length);
+	static void packetProcess(uint16_t length);
+
+	static uint8_t* getSrcMAC();
+
+	static uint16_t getTypeLen();
+
+	static void cp_mac(uint8_t *to, const uint8_t *from);
+};
 
 
 ### 2. Implementacja NDP
+Klasa: NDP
+NDP jest to protokół związany z IPv6. Jest on poniekąd odpowiednikiem ARP w IPv4.
+Operuje na warstwie łącza danych. Jego zdaniem jest między innymi: 
+* autokonfiguracja węzłów w sieci
+* odkrywanie innych elementów sieci
+* ustalanie adresu warstwy łącza danych 
+* znajdowanie routerów
+* inne
+W przypdaku naszej implementacji skupiliśmy się na ustalaniu adresów warstwy łącza danych,
+zarówno na potrzeby wysyłania przez nas ramek jak i w odpowiedzi na zapytania innych
+węzłów sieci. Jest ona zdefiniowana w pliku ndp.h, zaś jej implementacja znajduje się w pliku 
+ndp.cpp. Kluczowa z punktu widzenia implementowanej przez nas funkcjonalności protokołu NDP
+struktura, zawierająca adres mac i odpowiadający mu adres IP w  wersji szóstej, została przez
+nas zdefiniowana w następujący sposób:
+
+struct ndp_pair {
+	uint8_t ip[16];
+	uint8_t mac[6];
+	uint32_t created;
+};
+
+Z powodu ograniczenia pamięci w wykorzystywanej przez nas platformie, zmuszeni byliśmy do 
+ustalenia liczby przechowywanych w ten sposób par do 3. Pole created zawiera czas odświeżenia
+wpisu w tejże tablicy i umożliwia ocenę poprawności przechowywanych danych.
+Sama klasa wypełniająca zadania protokołu NDP jest zdefiniowana następująco:
+
+class NDP {
+public:
+	static uint8_t IP[];
+	static struct ndp_pair pairs[];
+	static uint8_t* getMAC(uint8_t *ip);
+	static void savePairing(uint8_t *ip, uint8_t *mac);
+
+	static void handleAdvertisment(struct ICMPv6_header *header);
+	static void handleSolicitation(struct ICMPv6_header *header);
+	static void sendAdvertisment(uint8_t *dst_ip, bool solicited, bool override);
+
+};
+
+Tak jak w wypadku klasy Ethernet, zawiera ona szereg statycznych metod. Dwie z nich służa do 
+bezpośredniego operowania na wspomnianej wcześniej tablicy struktur ndp_pair. Są to getMAC,
+umożliwiająca uzyskanie adresu MAC, na podstawie adresu IP przekazanego jako parametr oraz
+savePairing, umożiwiająca dokonanie zapisu pary adres MAC - adres IP, podanej jako argument
+do wspomnianej tablicy, lub w wypadku istnienia już takiego wpisu, odświeżenie pola
+created.
+Metoda handleAdvertisment umożliwia obsługę ramek typu Neighbor Advertisement, będących 
+odpowiedziami na żądania uzyskania adresu MAC : Neighbor Solicitation. Uaktualnia ona
+tablicę z parami MAC - IP nowo nabytą informacją. Metoda pozwalająca na odpowiedź na 
+Neighbor Solicitation, to handleSolicitation, która za pomocą metody sendAdvertisment
+wysyła ramkę typu Neighbor Advertisement.
+
+
 ### 3. Implementacja IPv6
 ### 4. Implementacja TCP
 ### 5. Implementacja HTTP

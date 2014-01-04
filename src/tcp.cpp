@@ -123,20 +123,14 @@ void TCP::packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length) {
 	struct TCP_status* status = getStatus(src_ip, SWAP_16_H_L(TCP::header->src_port));
 
 	uint16_t len;
-	uint32_t tmp;
 
 	if (status == 0) {
 		status = addStatus(src_ip, SWAP_16_H_L(TCP::header->src_port), SWAP_16_H_L(TCP::header->dst_port));
 	}
 
-	if (status == 0) {
-		Serial.println(F("Failed to create new status"));
-		return;
-	}
-
 	switch (status->state) {
 	case TCP_LISTEN:
-		status->handler = getHandler(status->port);
+		status->handler = getHandler(status->local_port);
 		if (!(TCP::header->control_bits & (1 << 1)) || // SYN
 			status->handler == 0) {
 			removeStatus(status->ip, status->port);
@@ -216,6 +210,10 @@ void TCP::packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length) {
 			uint16_t data_offset = 4 * (TCP::header->data_offset >> 4);
 			status->remote_num += length - data_offset;
 
+			uint16_t tmp_len = length - data_offset;
+			uint8_t* tmp_buf = (uint8_t*)malloc(tmp_len);
+			memcpy(tmp_buf, ((uint8_t*)TCP::header) + data_offset, tmp_len);
+
 			len = sizeof(struct TCP_header);
 			IPv6::packetPrepare(src_ip, TCP_NEXT_HEADER, len);
 			TCP::header->src_port = SWAP_16_H_L(status->local_port);
@@ -231,8 +229,9 @@ void TCP::packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length) {
 			TCP::header->checksum = SWAP_16_H_L(TCP::header->checksum);
 			IPv6::packetSend(offset+len);
 
-			struct TCP_handler_args args = {status, ((uint8_t*)TCP::header) + data_offset, length - data_offset};
+			struct TCP_handler_args args = {status, tmp_buf, tmp_len};
 			status->handler(&args);
+			free(tmp_buf);
 		}
 
 		break;
@@ -240,4 +239,29 @@ void TCP::packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length) {
 		removeStatus(status->ip, status->port);
 		break;
 	}
+}
+
+void TCP::send(struct TCP_status* status, char* data) {
+	if (status->state != TCP_ESTABLISHED) {
+		return;
+	}
+
+	uint16_t len = sizeof(struct TCP_header) + strlen(data);
+	uint16_t offset = IPv6::packetPrepare(status->ip, TCP_NEXT_HEADER, len);
+	TCP::header = (struct TCP_header*) (TCP::buffer + offset);
+	TCP::header->src_port = SWAP_16_H_L(status->local_port);
+	TCP::header->dst_port = SWAP_16_H_L(status->port);
+	TCP::header->seq_num = SWAP_32(status->local_num);
+	TCP::header->ack_num = SWAP_32(status->remote_num);
+	TCP::header->data_offset = 0xF0 & (5 << 4); // 0 options
+	TCP::header->control_bits = 0x3F & (1 << 4 | 1 << 3); // ACK
+	TCP::header->window = SWAP_16_H_L(512); // reduce window size
+	TCP::header->checksum = 0;
+	TCP::header->urgent_pointer = 0;
+	memcpy(TCP::header->options, data, strlen(data));
+	TCP::header->checksum = IPv6::generateChecksum(0);
+	TCP::header->checksum = SWAP_16_H_L(TCP::header->checksum);
+	IPv6::packetSend(offset+len);
+
+	status->local_num += strlen(data);
 }

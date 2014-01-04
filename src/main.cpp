@@ -10,6 +10,7 @@
 #include "enc28j60.h"
 #include "ethernet.h"
 #include "ndp.h"
+#include "http.h"
 
 byte ENC28J60::buffer[500];
 
@@ -24,6 +25,8 @@ void setup()   {
 	Serial.begin(9600);
 	Ethernet::initialize(ENC28J60::buffer, ENC28J60::MAC);
 	randomSeed(analogRead(0));
+
+	TCP::registerHandler(80, HTTP::handler);
 }
 
 

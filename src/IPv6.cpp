@@ -129,6 +129,10 @@ uint16_t IPv6::generateChecksum(uint16_t correction) {
 	for (tmp = payload, end = tmp + (length+1)/2; tmp < end; tmp++) {
 		checksum += SWAP_16_H_L(*tmp);
 	}
+	if (length % 2 == 1) {
+		checksum -= SWAP_16_H_L(*(tmp-1)) & 0x00FF;
+	}
+
 
 	checksum -= SWAP_16_H_L(correction);
 

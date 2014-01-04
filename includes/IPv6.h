@@ -19,6 +19,7 @@ public:
 	static uint16_t* address;
 	static struct IPv6_header* header;
 
+	static void initialize(uint8_t* buffer);
 	static void packetProcess(uint16_t offset, uint16_t length);
 	static uint16_t generateChecksum(uint16_t correction);
 	static uint16_t packetPrepare(uint8_t *dst_ip, uint8_t next_header, uint16_t length);
@@ -26,6 +27,7 @@ public:
 
 	static bool filter(uint8_t *ip);
 	static void cp_ip(uint8_t *to, const uint8_t *from);
+	static int cmp_ip(uint8_t *ip1, uint8_t *ip2);
 };
 
 #endif

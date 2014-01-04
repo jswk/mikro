@@ -8,8 +8,14 @@
 
 #include "debug.h"
 
-uint8_t* Ethernet::buffer = ENC28J60::buffer;
-uint8_t* Ethernet::MAC = ENC28J60::MAC;
+uint8_t* Ethernet::buffer;
+uint8_t* Ethernet::MAC;
+
+void Ethernet::initialize(uint8_t* buffer, uint8_t* MAC) {
+	Ethernet::buffer = buffer;
+	Ethernet::MAC = MAC;
+	IPv6::initialize(buffer);
+}
 
 void Ethernet::cp_mac(uint8_t *to, const uint8_t *from) {
 	memcpy(to, from, 6);

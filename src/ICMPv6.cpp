@@ -6,7 +6,11 @@
 #include "IPv6.h"
 #include "ndp.h"
 
-uint8_t* ICMPv6::buffer = IPv6::buffer;
+uint8_t* ICMPv6::buffer;
+
+void ICMPv6::initialize(uint8_t* buffer) {
+	ICMPv6::buffer = buffer;
+}
 
 void ICMPv6::packetProcess(uint16_t offset, uint16_t length) {
 	struct ICMPv6_header *header = (struct ICMPv6_header*) (ICMPv6::buffer+offset);

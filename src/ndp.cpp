@@ -13,22 +13,10 @@ static uint8_t broadcast[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 
 struct ndp_pair NDP::pairs[NDP_CACHE_LEN];
 
-int cmp_ip(uint8_t *ip1, uint8_t *ip2) {
-	int i;
-	for (i = 0; i < 16; i++) {
-		if (ip1[i] < ip2[i]) {
-			return -1;
-		} else if (ip1[i] > ip2[i]) {
-			return 1;
-		}
-	}
-	return 0;
-}
-
 uint8_t* NDP::getMAC(uint8_t *ip) {
 	int i;
 	for (i = 0; i < NDP_CACHE_LEN; i++) {
-		if(cmp_ip(ip, NDP::pairs[i].ip) == 0) {
+		if(IPv6::cmp_ip(ip, NDP::pairs[i].ip) == 0) {
 			return NDP::pairs[i].mac;
 		}
 	}
@@ -53,7 +41,7 @@ void NDP::handleSolicitation(struct ICMPv6_header *header) {
 	Serial.println();
 #endif
 
-	if (cmp_ip(header->body, NDP::IP) != 0) {
+	if (IPv6::cmp_ip(header->body, NDP::IP) != 0) {
 		return;
 	}
 
@@ -91,7 +79,7 @@ void NDP::savePairing(uint8_t *ip, uint8_t *mac) {
 	uint8_t best_i = 0;
 
 	while (i < NDP_CACHE_LEN) {
-		if (cmp_ip(ip, NDP::pairs[i].ip) == 0) {
+		if (IPv6::cmp_ip(ip, NDP::pairs[i].ip) == 0) {
 			memcpy(NDP::pairs[i].mac, mac, 6);
 			NDP::pairs[i].created = millis();
 			break;

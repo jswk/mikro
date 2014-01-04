@@ -9,6 +9,7 @@ class Ethernet {
 public:
 	static uint8_t* buffer;
 	static uint8_t* MAC;
+	static void initialize(uint8_t* buffer, uint8_t* MAC);
 	static uint16_t packetPrepare(const uint8_t* dest_mac, uint16_t typelen);
 	static void packetSend(uint16_t length);
 	static void packetProcess(uint16_t length);

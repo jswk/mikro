@@ -6,11 +6,18 @@
 #include "ethernet.h"
 #include "ICMPv6.h"
 #include "ndp.h"
+#include "tcp.h"
 
 #include "debug.h"
 
-uint8_t* IPv6::buffer = Ethernet::buffer;
+uint8_t* IPv6::buffer;
 struct IPv6_header* IPv6::header;
+
+void IPv6::initialize(uint8_t* buffer) {
+	IPv6::buffer = buffer;
+	ICMPv6::initialize(buffer);
+	TCP::initialize(buffer);
+}
 
 bool isZeroes(const uint8_t *ip) {
 	uint8_t i;
@@ -51,9 +58,15 @@ void IPv6::packetProcess(uint16_t offset, uint16_t length) {
 	}
 
 	switch (header->next_header) {
+
 	case ICMPv6_NEXT_HEADER: // ICMPv6
 		ICMPv6::packetProcess(offset + IPv6_HEADER_LEN, SWAP_16_H_L(IPv6::header->payload_length));
 		break;
+
+	case TCP_NEXT_HEADER: // TCP
+		TCP::packetProcess(header->src_ip, offset + IPv6_HEADER_LEN, SWAP_16_H_L(IPv6::header->payload_length));
+		break;
+
 	}
 }
 
@@ -122,4 +135,16 @@ uint16_t IPv6::generateChecksum(uint16_t correction) {
 	checksum += (checksum >> 16);
 
 	return (uint16_t) ~checksum;
+}
+
+int IPv6::cmp_ip(uint8_t *ip1, uint8_t *ip2) {
+	int i;
+	for (i = 0; i < 16; i++) {
+		if (ip1[i] < ip2[i]) {
+			return -1;
+		} else if (ip1[i] > ip2[i]) {
+			return 1;
+		}
+	}
+	return 0;
 }

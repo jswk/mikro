@@ -15,6 +15,7 @@ class ICMPv6 {
 public:
 	static uint8_t* buffer;
 	static uint8_t* address;
+	static void initialize(uint8_t* buffer);
 
 	static void packetProcess(uint16_t offset, uint16_t length);
 	

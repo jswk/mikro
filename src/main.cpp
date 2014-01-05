@@ -23,8 +23,9 @@ void setup()   {
 	ENC28J60::disableMulticast();
 	Serial.begin(9600);
 	Ethernet::initialize(ENC28J60::buffer, ENC28J60::MAC);
-	randomSeed(analogRead(0));
+	randomSeed(42);
 
+	HTTP::initialize();
 	TCP::registerHandler(80, HTTP::handler);
 }
 

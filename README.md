@@ -285,6 +285,52 @@ z zgadzającego się z danymi w interesującej go strukturze TCP_status, zsotaje
 
 
 ### 5. Implementacja HTTP
+Klasa HTTP.
+Hypertext Transfer Protocol (HTTP), czyli  protokół przesyłania dokumentów hipertekstowych, jest elementem 
+warstwy aplikacji modelu OSI. W tym właśnie protokole przesyłane są żądania dotyczące dokumentów związanych
+z siecią internetową. Normalizuje on formę zarówno żądań klienta, jak i odpowiedzi serwera. Zawiera szereg metod,
+w nasze jimplementacji zawarlismy jednak tylko wybrane, konieczne do działania naszego serwera. W przeciwieństwie
+do TCP jest on bezstanowy.
+
+Klasa HTTP jest zdefiniowana w pliku kttp.h i zaimplementowana w pliku http.cpp. 
+Klasa realizująca zadania protokołu http jest zdefiniowana w następujący sposób:
+
+	class HTTP {
+	public:
+	static char buffer[];
+	static void initialize();
+	static void handler(TCP_handler_args* args);
+	};
+	
+Tak jak w przypadku pozostałych klas wszystkie metody i pola są statyczne.
+Kluczowym i jedynym dostępnym zewnętrznie do użytku elementem klasy jest metoda handler. Przyjmuje ona argument
+typu TCP_handler_args*. Jest ona wykorzystywana jako wcześniej opisany handler w klasie TCP. Jest ona rejestrowana
+przy pomocy TCP::registerHandler, i w naszym przypadku nasłuchuje na porcie 80 (standardowy port), można to jednak 
+zmienić, podając inny parametr w metodzie TCP::registerHandler. Metoda ta sprawdza rodzaj zapytania i wywołuje
+jedną z metod pomocniczych by go obsłużyć. Wszystkie te metody konstruują odpowiedź i następnie ją odsyłają.
+Wszystkie odpowiedzi zawierają kod odpowiedzi (OK lub ERROR), typ zawartości (content_type) oraz jej długość.
+I tak metoda serveIndex skutkuje odesłaniem pakietu zawierającego potwierdzenie poprawności (HTTP/1.1 200 OK) i 
+ciało strony głównej na sztywno wpisanaego w kodzie:
+"<html>"
+			"<head>"
+				"<title>Arduino Board</title>"
+				"<script type=\"text/javascript\" src=\"//local.cdn.arduino/boot.js\"></script>"
+			"</head>"
+			"<body></body>"
+"</html>"
+Z powodu małej objętość dostępnej na naszej platformie pamięci koniecznym było odesłanie jedynie takiego 
+prostego dokumentu html, natomiast bardziej zaawansowana funkcjonalności strony zawarte są pliku javascriptowym
+boot.js. Oprócz tego dostępny jest zestaw funkcji pozwalających przetwarzać żądania pozwalające manipolowaniem
+urządzeniem peryferyjnym (w naszym przypadku diodom) na serwerze jak i otrzymanie w wiadomości zwrotnej
+stanu tegoż urządzenia. W wypadku nie rozpoznania żądania jako poprawnego zsotaje użyta funkcja serve404. 
+Zwraca on kod odpowiedzi równy HTTP/1.1 404 Not Found jak i dokument html:
+"<html>"
+		"<head>"
+			"<title>Arduino Board</title>"
+		"</head>"
+		"<body><h1>404</h1></body>"
+"</html>"
+
 ### 6. Obsługa zapytań POST po stronie serwera
 
 

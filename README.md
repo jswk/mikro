@@ -172,9 +172,9 @@ Sama klasa wypełniająca zadania protokołu IPv6 jest zdefiniowana następując
 Podobnie jak w przypadku klasy Ethernet umożliwia ona przetworzenie pakietu przychodzącego
 oraz przygotowanie i wysłanie pakietu do wybranego adresu docelowego. Udostępniony jest też
 szerego metod pomocniczych umożliwiających:
-* wygenerowanie checksumy dla ramki IPv6
+* wygenerowanie checksumy dla ramki IPv6 (metoda generateChecksum)
 * sprawdzenie czy należy przetwarzać ramkę (metoda filter)
-* metoda umożliwiająca kopiowanie adresu ip między miejscami w pamięci
+* metoda umożliwiająca kopiowanie adresu ip między miejscami w pamięci (metoda cp_ip)
 
 W ramach przetwarzania ramki, jeśli pole next_header przyjmie wartość stałej ICMPv6_NEXT_HEADER,
 wykorzystana zostaje klasa ICMPv6 w celu przetworznia takiego nagłówka.
@@ -192,6 +192,98 @@ odpowiedzi na zapytanie typu ping request (ping reply).
 
 
 ### 4. Implementacja TCP
+Klasa TCP
+TCP to strumieniowy protokół połączeniowy. Jest on niezawodny (sprawdza czy pakiety nie są tracone).
+Wykorzystuje on przedstawiony wcześniej protokół IPv4 do odbierania i wysyłania danych.
+TCP jest częścią transportowej warstwy modelu OSI.
+Klasa TCP jest zdefiniowana w pliku tcp.h i zaimplementowana w pliku tcp.cpp. 
+Kluczowa struktura modelująca nagłówek protokołu TCP jest zdefiniowana następująco:
+	struct TCP_header {
+	uint16_t src_port;
+	uint16_t dst_port;
+	uint32_t seq_num;
+	uint32_t ack_num;
+	uint8_t data_offset; 
+	uint8_t control_bits; 
+	uint16_t window;
+	uint16_t checksum;
+	uint16_t urgent_pointer;
+	uint8_t options[];
+	};
+
+Pola src_port i dst_port zawierają porty odpowiednio nadawcy i odbiorcy. Pole seq_num pomaga podczas procesu 
+fragmentacji, ack_num czyli numer potwierdzenia pozwala na sprawdzanie czy pakiety zostały zgubione.
+Ostatnim istotnym dla nas polem jest checksum, zawierający sumę kontrolną, pozwalający sprawdzić poprawność
+wymienionych danych.
+
+Do obsługi pakietów wykorzystywany jest handler. Zdefiniowany jest on za pomocą stuktury:
+	struct TCP_handler {
+	uint16_t port;
+	void (*handler)(struct TCP_handler_args*);
+	struct TCP_handler* next;
+	};
+Funkcja obsługi przyjmuję jako argument strukturę:
+	struct TCP_handler_args {
+	struct TCP_status* status;
+	uint8_t* data;
+	uint16_t length;
+	};
+,gdzie TCP_status zdefiniowany jest następująco:
+struct TCP_status {
+	int state;
+	uint8_t ip[16];
+	uint16_t port;
+	uint16_t local_port;
+	uint32_t local_num;
+	uint32_t remote_num;
+	void (*handler)(struct TCP_handler_args*);
+};
+
+Struktury te (czyli TCP_status i TCP_handler_args) reprezentują dane zawarte w ramce TCP i warstwach niższych 
+w przyjazny dla warstw wyższych sposób. 
+W TCP_handler_args.length mamy długość danych natomiast TCP_handler_args.data to wskaźnik do danych.
+TCP_status zawiera natomiast nformacje takie jak numer portu czy adres ip urządzenia z którym nawiązana jest 
+komunikacja.
+
+Dodatkowo zdefiniowana jest struktura TCP_status_node, dzięki ktorej możliwe jest przechowywanie obiektów TCP_status
+w liście jednokierunkowej. Do operacji na niej zdefiniowane zostały trzy funkcje:
+- struct TCP_status* getStatus(uint8_t* ip, uint16_t port) , umożliwiające uzyskanie struktury TCP_status
+przechowywanej w liście na bazie pary: adres ip - numer portu, podanej jako argument.
+- TCP_status* addStatus(uint8_t* ip, uint16_t port, uint16_t local_port), pozwalającej stworzyć i dodac strukturę
+TCP_status do listy, na podstawie podanych argumentów (kolejno: adres ip urządzenia, jego port i port lokalny Arduino)
+- void removeStatus(uint8_t* ip, uint16_t port) , analogiczne do getStatus, tylko, że zamiast zwracać, to usuwa wpis
+w liście na bazie adresu ip i numeru portu.
+
+Sama klasa realizująca zadania protokołu TCP zdefiniowana jest w następujący sposób:
+	class TCP {
+	public:
+
+	static uint8_t* buffer;
+	static struct TCP_header* header;
+	static void initialize(uint8_t* buffer);
+
+	static void packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length);
+
+	static void send(TCP_status* status, uint8_t* data, uint16_t length);
+
+	static void registerHandler(uint16_t port, void (*handler)(struct TCP_handler_args* args));
+	};
+	
+Tak jak we wcześniejszych klasach, TCP udostępnia szereg metod statycznych umożliwiających szereg działań 
+związanych z funkcjonowaniem protokołu TCP. W także statycznych polach buffer i header przechowywane są
+kolejno: początek dostępnego miejsca w pamięci oraz początek nagłówka TCP ramki przechowanej w pamięci.
+
+Metoda initialize jest konieczna do działania pozostałych metod, ponieważ ustawia pole buffer, niezbędne 
+do jakichkolwiek operacji na pamięci.
+
+Metoda packetProcess jest analogiczna do innych metod o tej nazwie wśród wcześniej wspomnianych klas, służy
+więc do przetwarzania pakietu. Posługuje się ona wspominianymi wcześniej funkcjami zarządzającymi TCP_status.
+W zależności od rodzaju otrzymanej wiadomości konstruję inny nagłówek TCP_header i go wysyła za pomocą metody
+IPv6::packetSend. 
+Metoda registerHandler pozwala zarejestrować opisane wcześniej handlery, które w razie otrzymania pakietu
+z zgadzającego się z danymi w interesującej go strukturze TCP_status, zsotaje wywołany.
+
+
 ### 5. Implementacja HTTP
 ### 6. Obsługa zapytań POST po stronie serwera
 

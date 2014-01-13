@@ -39,7 +39,7 @@ prog_char http_m_read[] PROGMEM = "GET /pin/%i";
 prog_char http_r_write[] PROGMEM = "POST /pin/";
 prog_char http_m_write[] PROGMEM = "POST /pin/%i/%i";
 
-char HTTP::buffer[240];
+char HTTP::buffer[400];
 
 void HTTP::initialize() {
 }
@@ -197,16 +197,22 @@ void HTTP::handler(struct TCP_handler_args* args) {
 #endif
 
 	if (memcmp_P(args->data, http_r_index, strlen_P(http_r_index)) == 0) {
+		Serial.println(F("Index"));
 		serveIndex(args);
 	} else if (memcmp_P(args->data, http_r_mode_r, strlen_P(http_r_mode_r)) == 0) {
+		Serial.println(F("mode r"));
 		serveModeR(args);
 	} else if (memcmp_P(args->data, http_r_mode_w, strlen_P(http_r_mode_w)) == 0) {
+		Serial.println(F("mode w"));
 		serveModeW(args);
 	} else if (memcmp_P(args->data, http_r_read, strlen_P(http_r_read)) == 0) {
+		Serial.println(F("read"));
 		serveRead(args);
 	} else if (memcmp_P(args->data, http_r_write, strlen_P(http_r_write)) == 0) {
+		Serial.println(F("write"));
 		serveWrite(args);
 	} else {
+		Serial.println(F("not found"));
 		serve404(args);
 	}
 

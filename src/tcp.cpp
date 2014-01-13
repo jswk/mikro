@@ -146,14 +146,14 @@ void TCP::packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length) {
 		TCP::header->ack_num = SWAP_32(status->remote_num);
 		TCP::header->data_offset = 0xF0 & (6 << 4); // 1 option
 		TCP::header->control_bits = 0x3F & (1 << 1 | 1 << 4); // SYN ACK
-		TCP::header->window = SWAP_16_H_L(512); // reduce window size
+		TCP::header->window = SWAP_16_H_L(400); // reduce window size
 		TCP::header->checksum = 0;
 		TCP::header->urgent_pointer = 0;
 		// Max Seg Size
 		TCP::header->options[0] = 2;
 		TCP::header->options[1] = 4;
-		TCP::header->options[2] = (0xFF00 & 512) >> 8;
-		TCP::header->options[3] = (0x00FF & 512) >> 0;
+		TCP::header->options[2] = (0xFF00 & 400) >> 8;
+		TCP::header->options[3] = (0x00FF & 400) >> 0;
 		TCP::header->checksum = IPv6::generateChecksum(0);
 		TCP::header->checksum = SWAP_16_H_L(TCP::header->checksum);
 		IPv6::packetSend(offset+len);
@@ -187,7 +187,7 @@ void TCP::packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length) {
 			TCP::header->ack_num = SWAP_32(status->remote_num);
 			TCP::header->data_offset = 0xF0 & (5 << 4); // 0 options
 			TCP::header->control_bits = 0x3F & (1 << 4); // ACK
-			TCP::header->window = SWAP_16_H_L(512); // reduce window size
+			TCP::header->window = SWAP_16_H_L(400); // reduce window size
 			TCP::header->checksum = 0;
 			TCP::header->urgent_pointer = 0;
 			TCP::header->checksum = IPv6::generateChecksum(0);
@@ -211,27 +211,27 @@ void TCP::packetProcess(uint8_t* src_ip, uint16_t offset, uint16_t length) {
 			status->remote_num += length - data_offset;
 
 			uint16_t tmp_len = length - data_offset;
-			uint8_t* tmp_buf = (uint8_t*)malloc(tmp_len);
-			memcpy(tmp_buf, ((uint8_t*)TCP::header) + data_offset, tmp_len);
+			//uint8_t* tmp_buf = (uint8_t*)malloc(tmp_len);
+			//memcpy(tmp_buf, ((uint8_t*)TCP::header) + data_offset, tmp_len);
 
-			len = sizeof(struct TCP_header);
-			IPv6::packetPrepare(src_ip, TCP_NEXT_HEADER, len);
+			//len = sizeof(struct TCP_header);
+			/*IPv6::packetPrepare(src_ip, TCP_NEXT_HEADER, len);
 			TCP::header->src_port = SWAP_16_H_L(status->local_port);
 			TCP::header->dst_port = SWAP_16_H_L(status->port);
 			TCP::header->seq_num = SWAP_32(status->local_num);
 			TCP::header->ack_num = SWAP_32(status->remote_num);
 			TCP::header->data_offset = 0xF0 & (5 << 4); // 0 options
 			TCP::header->control_bits = 0x3F & (1 << 4); // ACK
-			TCP::header->window = SWAP_16_H_L(512); // reduce window size
+			TCP::header->window = SWAP_16_H_L(400); // reduce window size
 			TCP::header->checksum = 0;
 			TCP::header->urgent_pointer = 0;
 			TCP::header->checksum = IPv6::generateChecksum(0);
 			TCP::header->checksum = SWAP_16_H_L(TCP::header->checksum);
-			IPv6::packetSend(offset+len);
+			IPv6::packetSend(offset+len);*/
 
-			struct TCP_handler_args args = {status, tmp_buf, tmp_len};
+			struct TCP_handler_args args = {status, ((uint8_t*)TCP::header) + data_offset, tmp_len};
 			status->handler(&args);
-			free(tmp_buf);
+			//free(tmp_buf);
 		}
 
 		break;
@@ -246,6 +246,8 @@ void TCP::send(struct TCP_status* status, uint8_t* data, uint16_t length) {
 		return;
 	}
 
+	memmove(TCP::header->options, data, length);
+
 	uint16_t len = sizeof(struct TCP_header) + length;
 	uint16_t offset = IPv6::packetPrepare(status->ip, TCP_NEXT_HEADER, len);
 	TCP::header = (struct TCP_header*) (TCP::buffer + offset);
@@ -254,11 +256,10 @@ void TCP::send(struct TCP_status* status, uint8_t* data, uint16_t length) {
 	TCP::header->seq_num = SWAP_32(status->local_num);
 	TCP::header->ack_num = SWAP_32(status->remote_num);
 	TCP::header->data_offset = 0xF0 & (5 << 4); // 0 options
-	TCP::header->control_bits = 0x3F & (1 << 4 | 1 << 3); // ACK
-	TCP::header->window = SWAP_16_H_L(512); // reduce window size
+	TCP::header->control_bits = 0x3F & (1 << 4 | 1 << 3); // ACK PSH
+	TCP::header->window = SWAP_16_H_L(400); // reduce window size
 	TCP::header->checksum = 0;
 	TCP::header->urgent_pointer = 0;
-	memcpy(TCP::header->options, data, length);
 	TCP::header->checksum = IPv6::generateChecksum(0);
 	TCP::header->checksum = SWAP_16_H_L(TCP::header->checksum);
 	IPv6::packetSend(offset+len);

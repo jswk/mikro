@@ -93,7 +93,7 @@ void Ethernet::packetProcess(uint16_t length) {
 	typelen = Ethernet::getTypeLen();
 
 #ifdef DEBUG_ETH
-	uint8_t* mac = Ethernet::getSrcMAC(mac);
+	uint8_t* mac = Ethernet::getSrcMAC();
 
 	Serial.print(F("Src MAC: "));
 	print_mac_to_serial(mac);

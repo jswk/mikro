@@ -55,7 +55,7 @@ ethernet.cpp. Za pomocą metod statycznych umożliwia ona obsługę pakietu ethe
 MAC, nadawcy jak i odbiorcy), wysłanie przygotowanego wcześniej pakietu jak i 
 przetworzenie odebranego pakietu). Klasa ta udostępnia także szereg metod pomocniczych
 umożliwiających na przykład pobranie adresu MAC nadawcy danej ramki czy skopiowanie
-adresu MAC zlokalizowanego w pamięci za pomocą wskaźnika do innego miejsca w pamięci.
+adresu MAC zlokalizowanego w pamięci za pomocą wskaźnika, do innego miejsca w pamięci.
 Co istotne, w ramach wykonania metod tej klasy, związanych z wysyłaniem i odbieraniem
 ramki, obecne już jest generowanie sumy kontrlonej za pomocą algorytmu CRC (w przypadku 
 przygotowanie ramki do wysłania) jak i weryfikacja tejże sumy kontrolenj w przypadku
@@ -82,10 +82,10 @@ Klasa: NDP
 NDP jest to protokół związany z IPv6. Jest on poniekąd odpowiednikiem ARP w IPv4.
 Operuje na warstwie łącza danych. Jego zdaniem jest między innymi: 
 * autokonfiguracja węzłów w sieci
-* odkrywanie innych elementów sieci
+* odkrywanie innych urządzeń w sieci
 * ustalanie adresu warstwy łącza danych 
 * znajdowanie routerów
-* inne.
+* i inne.
 
 W przypdaku naszej implementacji skupiliśmy się na ustalaniu adresów warstwy łącza danych,
 zarówno na potrzeby wysyłania przez nas ramek jak i w odpowiedzi na zapytania innych
@@ -187,14 +187,14 @@ się na trzech kluczowych, to jest:
 
 Pierwsze dwa obsługiwana są przez omówioną wcześniej klasę NDP, przez wykorzystanie metod:
 handleSolicitation i handleAdvertisment. Trzeci obsługiwanay jest z wykorzystaniem metody 
-handlePingRequest samej klasy ICMPv6. Wykorzystuje ona metody klasy IPv6 w celu odesłania 
+handlePingRequest tej samej klasy, to jesy ICMPv6. Wykorzystuje ona metody klasy IPv6 w celu odesłania 
 odpowiedzi na zapytanie typu ping request (ping reply).
 
 
 ### 4. Implementacja TCP
 Klasa TCP
 TCP to strumieniowy protokół połączeniowy. Jest on niezawodny (sprawdza czy pakiety nie są tracone).
-Wykorzystuje on przedstawiony wcześniej protokół IPv4 do odbierania i wysyłania danych.
+Wykorzystuje on przedstawiony wcześniej protokół IPv6 do odbierania i wysyłania danych.
 TCP jest częścią transportowej warstwy modelu OSI.
 Klasa TCP jest zdefiniowana w pliku tcp.h i zaimplementowana w pliku tcp.cpp. 
 Kluczowa struktura modelująca nagłówek protokołu TCP jest zdefiniowana następująco:
@@ -242,14 +242,14 @@ struct TCP_status {
 Struktury te (czyli TCP_status i TCP_handler_args) reprezentują dane zawarte w ramce TCP i warstwach niższych 
 w przyjazny dla warstw wyższych sposób. 
 W TCP_handler_args.length mamy długość danych natomiast TCP_handler_args.data to wskaźnik do danych.
-TCP_status zawiera natomiast nformacje takie jak numer portu czy adres ip urządzenia z którym nawiązana jest 
+TCP_status zawiera natomiast informacje takie jak numer portu czy adres ip urządzenia z którym nawiązana jest 
 komunikacja.
 
 Dodatkowo zdefiniowana jest struktura TCP_status_node, dzięki ktorej możliwe jest przechowywanie obiektów TCP_status
 w liście jednokierunkowej. Do operacji na niej zdefiniowane zostały trzy funkcje:
 - struct TCP_status* getStatus(uint8_t* ip, uint16_t port) , umożliwiające uzyskanie struktury TCP_status
 przechowywanej w liście na bazie pary: adres ip - numer portu, podanej jako argument.
-- TCP_status* addStatus(uint8_t* ip, uint16_t port, uint16_t local_port), pozwalającej stworzyć i dodac strukturę
+- TCP_status* addStatus(uint8_t* ip, uint16_t port, uint16_t local_port), pozwalającej stworzyć i dodać strukturę
 TCP_status do listy, na podstawie podanych argumentów (kolejno: adres ip urządzenia, jego port i port lokalny Arduino)
 - void removeStatus(uint8_t* ip, uint16_t port) , analogiczne do getStatus, tylko, że zamiast zwracać, to usuwa wpis
 w liście na bazie adresu ip i numeru portu.
@@ -281,7 +281,7 @@ więc do przetwarzania pakietu. Posługuje się ona wspominianymi wcześniej fun
 W zależności od rodzaju otrzymanej wiadomości konstruję inny nagłówek TCP_header i go wysyła za pomocą metody
 IPv6::packetSend. 
 Metoda registerHandler pozwala zarejestrować opisane wcześniej handlery, które w razie otrzymania pakietu
-z zgadzającego się z danymi w interesującej go strukturze TCP_status, zsotaje wywołany.
+z zgadzającego się z danymi w interesującej go strukturze TCP_status, zostają wywołane.
 
 
 ### 5. Implementacja HTTP
@@ -289,7 +289,7 @@ Klasa HTTP.
 Hypertext Transfer Protocol (HTTP), czyli  protokół przesyłania dokumentów hipertekstowych, jest elementem 
 warstwy aplikacji modelu OSI. W tym właśnie protokole przesyłane są żądania dotyczące dokumentów związanych
 z siecią internetową. Normalizuje on formę zarówno żądań klienta, jak i odpowiedzi serwera. Zawiera szereg metod,
-w nasze jimplementacji zawarlismy jednak tylko wybrane, konieczne do działania naszego serwera. W przeciwieństwie
+w nasze immplementacji zawarliśmy jednak tylko wybrane, konieczne do działania naszego serwera. W przeciwieństwie
 do TCP jest on bezstanowy.
 
 Klasa HTTP jest zdefiniowana w pliku kttp.h i zaimplementowana w pliku http.cpp. 
@@ -310,7 +310,7 @@ zmienić, podając inny parametr w metodzie TCP::registerHandler. Metoda ta spra
 jedną z metod pomocniczych by go obsłużyć. Wszystkie te metody konstruują odpowiedź i następnie ją odsyłają.
 Wszystkie odpowiedzi zawierają kod odpowiedzi (OK lub ERROR), typ zawartości (content_type) oraz jej długość.
 I tak metoda serveIndex skutkuje odesłaniem pakietu zawierającego potwierdzenie poprawności (HTTP/1.1 200 OK) i 
-ciało strony głównej na sztywno wpisanaego w kodzie:
+ciało strony głównej na sztywno wpisane w kodzie:
 "<html>"
 			"<head>"
 				"<title>Arduino Board</title>"
@@ -319,10 +319,10 @@ ciało strony głównej na sztywno wpisanaego w kodzie:
 			"<body></body>"
 "</html>"
 Z powodu małej objętość dostępnej na naszej platformie pamięci koniecznym było odesłanie jedynie takiego 
-prostego dokumentu html, natomiast bardziej zaawansowana funkcjonalności strony zawarte są pliku javascriptowym
-boot.js. Oprócz tego dostępny jest zestaw funkcji pozwalających przetwarzać żądania pozwalające manipolowaniem
+prostego dokumentu html, natomiast bardziej zaawansowane funkcjonalności strony zawarte są pliku javascriptowym
+boot.js. Oprócz tego dostępny jest zestaw funkcji pozwalających przetwarzać żądania pozwalające manipulowaniem
 urządzeniem peryferyjnym (w naszym przypadku diodom) na serwerze jak i otrzymanie w wiadomości zwrotnej
-stanu tegoż urządzenia. W wypadku nie rozpoznania żądania jako poprawnego zsotaje użyta funkcja serve404. 
+stanu tegoż urządzenia. W wypadku nie rozpoznania żądania jako poprawnego zostaje użyta funkcja serve404. 
 Zwraca on kod odpowiedzi równy HTTP/1.1 404 Not Found jak i dokument html:
 "<html>"
 		"<head>"

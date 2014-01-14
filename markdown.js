@@ -1,7 +1,10 @@
 var markdownpdf = require("markdown-pdf")
   , fs = require("fs")
 
-markdownpdf("README.md", function (er, pdfPath) {
+markdownpdf("README.md", {
+	cssPath : "./css.css",
+	paperBorder : "2cm"
+}, function (er, pdfPath) {
     if (er) return console.error(er)
     
     var is = fs.createReadStream(pdfPath);

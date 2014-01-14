@@ -79,6 +79,7 @@ odbierania ramki.
 Przykład skutków działania tejże klasy został umieszczony na rysunku ethernet.png.
 Są tam pokazane przykładowe pola ramki ethernetowej wysłanej przez nasz serwer zarejsetrowane
 przy pomocy programu Wireshark.
+![Rys.](../master/blob/ethernet.png)
 
 ### 2. Implementacja NDP
 Klasa: NDP
@@ -137,7 +138,7 @@ Przykład skutków działania tegoż protokołu zostały umieszczone na rysunku 
 Jest na nim widoczna wymiana pakietów związanych z protokołem NDp, to jest najpierw zapytanie
 typu Neighbour Solicitation od urządzania zewnętrznego do serwera i potem odpowiedź na to 
 żądanie czyli pakiet Neighbour Advertisment wysłany przez serwer do urządzenia zewnętrznego.
-
+![Rys.](../master/blob/solic.png)
 
 ### 3. Implementacja IPv6
 Klasy: ICMPv6 i IPv6

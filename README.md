@@ -320,26 +320,29 @@ jedną z metod pomocniczych by go obsłużyć. Wszystkie te metody konstruują o
 Wszystkie odpowiedzi zawierają kod odpowiedzi (OK lub ERROR), typ zawartości (content_type) oraz jej długość.
 I tak metoda serveIndex skutkuje odesłaniem pakietu zawierającego potwierdzenie poprawności (HTTP/1.1 200 OK) i 
 ciało strony głównej na sztywno wpisane w kodzie:
-	"<html>"
-			"<head>"
-				"<title>Arduino Board</title>"
-				"<script type=\"text/javascript\" src=\"//local.cdn.arduino/boot.js\"></script>"
-			"</head>"
-			"<body></body>"
-	"</html>"
+'''html
+	<html>
+			<head>
+				<title>Arduino Board</title>
+				<script type=\"text/javascript\" src=\"//local.cdn.arduino/boot.js\"></script>
+			</head>
+			<body></body>
+	</html>
+'''
 Z powodu małej objętość dostępnej na naszej platformie pamięci koniecznym było odesłanie jedynie takiego 
 prostego dokumentu html, natomiast bardziej zaawansowane funkcjonalności strony zawarte są pliku javascriptowym
 boot.js. Oprócz tego dostępny jest zestaw funkcji pozwalających przetwarzać żądania pozwalające manipulowaniem
 urządzeniem peryferyjnym (w naszym przypadku diodom) na serwerze jak i otrzymanie w wiadomości zwrotnej
 stanu tegoż urządzenia. W wypadku nie rozpoznania żądania jako poprawnego zostaje użyta funkcja serve404. 
 Zwraca on kod odpowiedzi równy HTTP/1.1 404 Not Found jak i dokument html:
-	"<html>"
-		"<head>"
-			"<title>Arduino Board</title>"
-		"</head>"
-		"<body><h1>404</h1></body>"
-	"</html>"
-
+'''html
+	<html>
+		<head>
+			<title>Arduino Board</title>
+		</head>
+		<body><h1>404</h1></body>
+	</html>
+'''
 Przykładowa wymiana ramek między serwerem i urządzeniem zewnętrznym została zaprezentowana na rysunku http.png.
 Pokazuje on wysłanie trzech kolejnych żądań (jest to jedno typu GET i dwa typu POST) pozwalających zmienić
 stan urządzenia peryferyjnego podłączonego do serwera i odpowiedzi na nie wysłane z serwera do urządzenia 
@@ -355,8 +358,22 @@ sprzętu i konfiguracja środowiska programistycznego do obsługi mikrokontroler
 
 ### 26.11.2013
 Połączenia Arduino z modułem Ethernet. Implementacja warstwy Ethernet wraz
-z walikacją poprawności przesyłanych danych poprzez CRC. Rejestracja komunikacji
+z walikdcją poprawności przesyłanych danych poprzez CRC. Rejestracja komunikacji
 poprzez Wireshark.
+
+### 12.2013 spotkanie I
+Implementacja protokołu NDP oraz części protokołu IPv6.
+
+### 12.2013 spotkanie II
+Implementacja reszty protokołu IPv6 wraz z całością ICMPv6 w tym obsługą pinga jak i zarządzaniem czynności
+z protokołu NDP. Rejestracja komunikacji przez Wiresharka.
+
+### 01.2013 spotkanie I
+Implementacja protokołów TCP i HTTP. Rejestracja komunikacji przez Wiresharka.
+
+### 01.2013 spotkanie II
+Uzupełnienie dokumentacji projektu oraz utworzenie kodu w javascripcie umożliwiającego zaprezentowanie
+funkcjonalności udostęnianych przez serwer.
 
 6. Przydatne komendy
 --------------------

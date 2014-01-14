@@ -320,7 +320,7 @@ jedną z metod pomocniczych by go obsłużyć. Wszystkie te metody konstruują o
 Wszystkie odpowiedzi zawierają kod odpowiedzi (OK lub ERROR), typ zawartości (content_type) oraz jej długość.
 I tak metoda serveIndex skutkuje odesłaniem pakietu zawierającego potwierdzenie poprawności (HTTP/1.1 200 OK) i 
 ciało strony głównej na sztywno wpisane w kodzie:
-'''html
+```html
 	<html>
 			<head>
 				<title>Arduino Board</title>
@@ -328,21 +328,21 @@ ciało strony głównej na sztywno wpisane w kodzie:
 			</head>
 			<body></body>
 	</html>
-'''
+```
 Z powodu małej objętość dostępnej na naszej platformie pamięci koniecznym było odesłanie jedynie takiego 
 prostego dokumentu html, natomiast bardziej zaawansowane funkcjonalności strony zawarte są pliku javascriptowym
 boot.js. Oprócz tego dostępny jest zestaw funkcji pozwalających przetwarzać żądania pozwalające manipulowaniem
 urządzeniem peryferyjnym (w naszym przypadku diodom) na serwerze jak i otrzymanie w wiadomości zwrotnej
 stanu tegoż urządzenia. W wypadku nie rozpoznania żądania jako poprawnego zostaje użyta funkcja serve404. 
 Zwraca on kod odpowiedzi równy HTTP/1.1 404 Not Found jak i dokument html:
-'''html
+```html
 	<html>
 		<head>
 			<title>Arduino Board</title>
 		</head>
 		<body><h1>404</h1></body>
 	</html>
-'''
+```
 Przykładowa wymiana ramek między serwerem i urządzeniem zewnętrznym została zaprezentowana na rysunku http.png.
 Pokazuje on wysłanie trzech kolejnych żądań (jest to jedno typu GET i dwa typu POST) pozwalających zmienić
 stan urządzenia peryferyjnego podłączonego do serwera i odpowiedzi na nie wysłane z serwera do urządzenia 

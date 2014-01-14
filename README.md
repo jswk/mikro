@@ -343,7 +343,7 @@ Przykładowa wymiana ramek między serwerem i urządzeniem zewnętrznym została
 Pokazuje on wysłanie trzech kolejnych żądań (jest to jedno typu GET i dwa typu POST) pozwalających zmienić
 stan urządzenia peryferyjnego podłączonego do serwera i odpowiedzi na nie wysłane z serwera do urządzenia 
 będącego nadawcą wyżej wspomnianych żądań. 
-![Rys.](../images/http.png?raw=true)
+![Rys.](../http.png?raw=true)
 
 5. Postęp prac
 --------------

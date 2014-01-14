@@ -76,6 +76,9 @@ odbierania ramki.
 	static void cp_mac(uint8_t *to, const uint8_t *from);
 	};
 
+Przykład skutków działania tejże klasy został umieszczony na rysunku ethernet.png.
+Są tam pokazane przykładowe pola ramki ethernetowej wysłanej przez nasz serwer zarejsetrowane
+przy pomocy programu Wireshark.
 
 ### 2. Implementacja NDP
 Klasa: NDP
@@ -129,6 +132,11 @@ odpowiedziami na żądania uzyskania adresu MAC : Neighbor Solicitation. Uaktual
 tablicę z parami MAC - IP nowo nabytą informacją. Metoda pozwalająca na odpowiedź na 
 Neighbor Solicitation, to handleSolicitation, która za pomocą metody sendAdvertisment
 wysyła ramkę typu Neighbor Advertisement.
+
+Przykład skutków działania tegoż protokołu zostały umieszczone na rysunku solic.png.
+Jest na nim widoczna wymiana pakietów związanych z protokołem NDp, to jest najpierw zapytanie
+typu Neighbour Solicitation od urządzania zewnętrznego do serwera i potem odpowiedź na to 
+żądanie czyli pakiet Neighbour Advertisment wysłany przez serwer do urządzenia zewnętrznego.
 
 
 ### 3. Implementacja IPv6
@@ -311,27 +319,30 @@ jedną z metod pomocniczych by go obsłużyć. Wszystkie te metody konstruują o
 Wszystkie odpowiedzi zawierają kod odpowiedzi (OK lub ERROR), typ zawartości (content_type) oraz jej długość.
 I tak metoda serveIndex skutkuje odesłaniem pakietu zawierającego potwierdzenie poprawności (HTTP/1.1 200 OK) i 
 ciało strony głównej na sztywno wpisane w kodzie:
-"<html>"
+	"<html>"
 			"<head>"
 				"<title>Arduino Board</title>"
 				"<script type=\"text/javascript\" src=\"//local.cdn.arduino/boot.js\"></script>"
 			"</head>"
 			"<body></body>"
-"</html>"
+	"</html>"
 Z powodu małej objętość dostępnej na naszej platformie pamięci koniecznym było odesłanie jedynie takiego 
 prostego dokumentu html, natomiast bardziej zaawansowane funkcjonalności strony zawarte są pliku javascriptowym
 boot.js. Oprócz tego dostępny jest zestaw funkcji pozwalających przetwarzać żądania pozwalające manipulowaniem
 urządzeniem peryferyjnym (w naszym przypadku diodom) na serwerze jak i otrzymanie w wiadomości zwrotnej
 stanu tegoż urządzenia. W wypadku nie rozpoznania żądania jako poprawnego zostaje użyta funkcja serve404. 
 Zwraca on kod odpowiedzi równy HTTP/1.1 404 Not Found jak i dokument html:
-"<html>"
+	"<html>"
 		"<head>"
 			"<title>Arduino Board</title>"
 		"</head>"
 		"<body><h1>404</h1></body>"
-"</html>"
+	"</html>"
 
-### 6. Obsługa zapytań POST po stronie serwera
+Przykładowa wymiana ramek między serwerem i urządzeniem zewnętrznym została zaprezentowana na rysunku http.png.
+Pokazuje on wysłanie trzech kolejnych żądań (jest to jedno typu GET i dwa typu POST) pozwalających zmienić
+stan urządzenia peryferyjnego podłączonego do serwera i odpowiedzi na nie wysłane z serwera do urządzenia 
+będącego nadawcą wyżej wspomnianych żądań. 
 
 
 5. Postęp prac
